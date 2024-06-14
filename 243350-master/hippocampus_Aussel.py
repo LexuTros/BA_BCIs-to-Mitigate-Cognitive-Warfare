@@ -59,7 +59,7 @@ def write_file(simutype,data,tmin,dur):
 
 def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     global inh_eqs, py_eqs, py_CAN_eqs, py_stim_eqs
-    global V_th, N1, N2, N3, p_CAN, asleep, grid, elec_ind, scale, runtime, timestep, sigma, coeff, scale, scale_str
+    global V_th, N1, N2, N3, p_CAN, asleep, grid, elec_ind, scale, runtime, tstep, sigma, coeff, scale, scale_str
     global noise_amp
     global stim,co, gain_stim
     global record_dt
@@ -86,7 +86,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     asleep=int(stim=='sleep')
     var_coeff=3 #3
        
-    timestep=defaultclock.dt
+    tstep=defaultclock.dt
     
     sigma= 0.3*siemens/meter
     scale=150*umetre 
@@ -99,7 +99,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     # Inhibitory
     inh_eqs = '''
     dv/dt = ( - I_leak - I_K - I_Na - I_SynE - I_SynExt - I_SynI - randn()*noise_amp) / ((1 * ufarad * cm ** -2) * (14e3 * umetre ** 2)) : volt 
-    Vm = (- I_leak - I_K - I_Na) / ((1 * ufarad * cm ** -2) * (14e3 * umetre ** 2))*timestep : volt 
+    Vm = (- I_leak - I_K - I_Na) / ((1 * ufarad * cm ** -2) * (14e3 * umetre ** 2))*tstep : volt 
     I_leak = ((0.1e-3 * siemens * cm ** -2) * (14e3 * umetre ** 2)) * (v - (-65 * mV)) : amp 
     I_K = ((9e-3 * siemens * cm ** -2) * (14e3 * umetre ** 2)) * (n ** 4) * (v - (-90 * mV)) : amp
         dn/dt = (n_inf - n) / tau_n : 1
@@ -148,7 +148,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     
     py_CAN_eqs = '''
     dv/dt = ( - I_CAN - I_M - I_leak - I_K - I_Na - I_Ca - I_SynE - I_SynExt - I_SynI - randn()*noise_amp) / ((1 * ufarad * cm ** -2) * (29e3 * umetre ** 2)) : volt 
-    Vm =( - I_CAN - I_M - I_leak - I_K - I_Na - I_Ca) / ((1 * ufarad * cm ** -2) * (29e3 * umetre ** 2))*timestep : volt 
+    Vm =( - I_CAN - I_M - I_leak - I_K - I_Na - I_Ca) / ((1 * ufarad * cm ** -2) * (29e3 * umetre ** 2))*tstep : volt 
     I_CAN =  ((gCAN) * (29e3 * umetre ** 2)) * mCAN ** 2 * (v - (-20 * mV)) : amp
         dmCAN/dt = (mCANInf - mCAN) / mCANTau : 1
         mCANInf = alpha2 / (alpha2 + (0.0002 * ms ** -1)) : 1
@@ -206,7 +206,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     #Pyramidal non CAN :
     py_eqs = '''
     dv/dt = ( - I_M - I_leak - I_K - I_Na - I_Ca - I_SynE - I_SynExt - I_SynI- randn()*noise_amp) / ((1 * ufarad * cm ** -2) * (29e3 * umetre ** 2)) : volt 
-    Vm=( - I_M - I_leak - I_K - I_Na - I_Ca) / ((1 * ufarad * cm ** -2) * (29e3 * umetre ** 2))*timestep : volt 
+    Vm=( - I_M - I_leak - I_K - I_Na - I_Ca) / ((1 * ufarad * cm ** -2) * (29e3 * umetre ** 2))*tstep : volt 
     I_M = ((gM) * (29e3 * umetre ** 2)) * p * (v - (-100 * mV)) : amp
         dp/dt = (pInf - p) / pTau : 1
         pInf = 1. / (1 + exp(- (v + (35 * mV)) / (10 * mV))) : 1
@@ -592,8 +592,8 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
 
 #Synthetically generated input records, based on proposition of additional paper:
     # Simulation parameters
-    duration = 120 * second
-    r_dt = 1. / 1024 * second  # Sampling interval for TimedArray
+    duration = 1 * second
+    #record_dt = 1. / 1024 * second  # Sampling interval for TimedArray
 
     # Parameters for square wave
     A1 = 1  # Amplitude
@@ -601,12 +601,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
     t0 = 0.250  # Start time
 
     # Time array
-    times = np.arange(0, duration, r_dt)
+    times = np.arange(0 * second, duration, record_dt)
 
     # Generate square wave
     Istim_values = np.zeros_like(times)
-    for i, t in enumerate(times):
-        if t >= t0 and np.sin(2 * np.pi * f1 * (t - t0)) >= 0:
+    for i, tim in enumerate(times):
+        if tim >= t0 and np.sin(2 * np.pi * f1 * (tim - t0)) >= 0:
             Istim_values[i] = A1
 
     # Normalize values to range [0, 1]
@@ -616,11 +616,11 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
     Istim_noisy = 5 / 6 * Istim_normalized + (1 / 6) * np.random.rand(len(Istim_normalized))
 
     # Scale to a maximum of 200 Hz (based on previous scaling)
-    max_rate = 200
+    max_rate = 200 * Hz
     Istim_scaled = Istim_noisy * max_rate
 
     # Create TimedArray from scaled data
-    Istim_timed = TimedArray(Istim_scaled, dt=r_dt)
+    Istim_timed = TimedArray(Istim_scaled, dt=record_dt)
 
     
     #ajout des inputs
@@ -635,19 +635,19 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
         inputs3=Istim_timed
     
 
-    In_exc1=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs1(t)*timestep')    #dt ? record_dt ?
+    In_exc1=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs1(t)*tstep', dt=record_dt)    #dt ? record_dt ?
     S11 = Synapses(In_exc1, EC_py_CAN, on_pre='he_post+=g_max_e')
     S11.connect(p='p_in')
     S13 = Synapses(In_exc1, EC_inh, on_pre='he_post+=g_max_e')
     S13.connect(p='p_in')
 
-    In_exc2=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs2(t)*timestep')    #dt ? record_dt ?
+    In_exc2=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs2(t)*tstep', dt=record_dt)    #dt ? record_dt ?
     S21 = Synapses(In_exc2, EC_py_CAN, on_pre='he_post+=g_max_e')
     S21.connect(p='p_in')
     S23 = Synapses(In_exc2, EC_inh, on_pre='he_post+=g_max_e')
     S23.connect(p='p_in')
 
-    In_exc3=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs3(t)*timestep')    #dt ? record_dt ?
+    In_exc3=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs3(t)*tstep', dt=record_dt)    #dt ? record_dt ?
     S31 = Synapses(In_exc3, EC_py_CAN, on_pre='he_post+=g_max_e')
     S31.connect(p='p_in')
     S33 = Synapses(In_exc3, EC_inh, on_pre='he_post+=g_max_e')
@@ -665,28 +665,28 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
     
     #### Simultation #######
     print('Changing compilation method')
-    prefs.codegen.target = 'cython' 
+    #prefs.codegen.target = 'cython'
     
     single_runtime=runtime/nb_runs
-    signal_principal=zeros(int(runtime/timestep))
+    signal_principal=zeros(int(runtime/tstep))
 
-    
+
     for test_ind in range(nb_runs):
         
-        syn_CA3_py_CAN_E = StateMonitor(CA3_py_CAN,'I_SynE',record=True,dt=timestep)
-        syn_CA1_py_CAN_E = StateMonitor(CA1_py_CAN,'I_SynE',record=True,dt=timestep)
-        syn_DG_py_E = StateMonitor(DG_py,'I_SynE',record=True,dt=timestep)
-        syn_EC_py_CAN_E = StateMonitor(EC_py_CAN,'I_SynE',record=True,dt=timestep)
+        syn_CA3_py_CAN_E = StateMonitor(CA3_py_CAN,'I_SynE',record=True,dt=tstep)
+        syn_CA1_py_CAN_E = StateMonitor(CA1_py_CAN,'I_SynE',record=True,dt=tstep)
+        syn_DG_py_E = StateMonitor(DG_py,'I_SynE',record=True,dt=tstep)
+        syn_EC_py_CAN_E = StateMonitor(EC_py_CAN,'I_SynE',record=True,dt=tstep)
         
-        syn_CA3_py_CAN_Ext = StateMonitor(CA3_py_CAN,'I_SynExt',record=True,dt=timestep)
-        syn_CA1_py_CAN_Ext = StateMonitor(CA1_py_CAN,'I_SynExt',record=True,dt=timestep)
-        syn_DG_py_Ext = StateMonitor(DG_py,'I_SynExt',record=True,dt=timestep)
-        syn_EC_py_CAN_Ext = StateMonitor(EC_py_CAN,'I_SynExt',record=True,dt=timestep)
+        syn_CA3_py_CAN_Ext = StateMonitor(CA3_py_CAN,'I_SynExt',record=True,dt=tstep)
+        syn_CA1_py_CAN_Ext = StateMonitor(CA1_py_CAN,'I_SynExt',record=True,dt=tstep)
+        syn_DG_py_Ext = StateMonitor(DG_py,'I_SynExt',record=True,dt=tstep)
+        syn_EC_py_CAN_Ext = StateMonitor(EC_py_CAN,'I_SynExt',record=True,dt=tstep)
         
-        syn_CA3_py_CAN_I = StateMonitor(CA3_py_CAN,'I_SynI',record=True,dt=timestep)
-        syn_CA1_py_CAN_I = StateMonitor(CA1_py_CAN,'I_SynI',record=True,dt=timestep)
-        syn_DG_py_I = StateMonitor(DG_py,'I_SynI',record=True,dt=timestep)
-        syn_EC_py_CAN_I = StateMonitor(EC_py_CAN,'I_SynI',record=True,dt=timestep)
+        syn_CA3_py_CAN_I = StateMonitor(CA3_py_CAN,'I_SynI',record=True,dt=tstep)
+        syn_CA1_py_CAN_I = StateMonitor(CA1_py_CAN,'I_SynI',record=True,dt=tstep)
+        syn_DG_py_I = StateMonitor(DG_py,'I_SynI',record=True,dt=tstep)
+        syn_EC_py_CAN_I = StateMonitor(EC_py_CAN,'I_SynI',record=True,dt=tstep)
         
         
         run(single_runtime,report='text',report_period=300*second)
@@ -698,15 +698,15 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
         start_ind=int(start_plot_time/record_dt)      
         
 
-        all_isyn=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_dg_e=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_dg_i=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_ec_e=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_ec_i=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_ca1_e=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_ca1_i=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_ca3_e=zeros((len(elec_pos),int(single_runtime/timestep)))
-        lfp_ca3_i=zeros((len(elec_pos),int(single_runtime/timestep)))
+        all_isyn=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_dg_e=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_dg_i=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_ec_e=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_ec_i=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_ca1_e=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_ca1_i=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_ca3_e=zeros((len(elec_pos),int(single_runtime/tstep)))
+        lfp_ca3_i=zeros((len(elec_pos),int(single_runtime/tstep)))
         
         xx=array(elec_pos)[:,0]*scale
         yy=array(elec_pos)[:,1]*scale
@@ -811,12 +811,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
         del w
         del cos_angle
         del dx,dy,dz,dist
-        signal_principal[test_ind*int(single_runtime/timestep):(test_ind+1)*int(single_runtime/timestep)]=isyn_principal
+        signal_principal[test_ind*int(single_runtime/tstep):(test_ind+1)*int(single_runtime/tstep)]=isyn_principal
 
     print('This simulation has ended.')
     
     N=3
-    fs=1/timestep*second
+    fs=1/tstep*second
     nyq = 0.5 * fs
     low=0.15 / nyq
     high = 480 / nyq
@@ -824,7 +824,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
     res_filt=scipy.signal.filtfilt(b,a,signal_principal)  
     b, a = scipy.signal.butter(N, low, btype='high')
     res_filt=scipy.signal.filtfilt(b,a,res_filt) 
-    step=int(1/1024/timestep*second)
+    step=int(1/1024/tstep*second)
     res_1024=res_filt[::step]
     
     all_simu_types=['S_S','S_W','W_S','W_W','S_S_CAN','S_W_noCAN','W_S_CAN','W_W_noCAN']
@@ -842,11 +842,11 @@ def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
     #close("all")
 
     global runtime,record_dt,start_ind,simu,version,epilepsy,raster,pCAN
-    runtime =60*second  
+    runtime =1*second
     print(runtime)
     record_dt=1./1024 *second
     start_ind=int(500*msecond/record_dt)
-    timestep=defaultclock.dt
+    tstep=defaultclock.dt
     
     all_simu_types=['S_S','S_W','W_S','W_W','S_S_CAN','S_W_noCAN','W_S_CAN','W_W_noCAN']   
     pCAN=1
@@ -882,4 +882,4 @@ def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
 
 
 if __name__ == '__main__':
-    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06)
+    main_process(range(1), 60*psiemens, 600*psiemens, 0.1, 0.06)
