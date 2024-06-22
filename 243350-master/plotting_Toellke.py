@@ -39,7 +39,8 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
 
     emptyLableInput = [np.nan, np.nan]
     # Prepare data
-    categories = ['input:    \nconnectivity:    \nCAN current:    ', 'sleep\nsleep\noff', 'sleep\nsleep\non', 'wake\nsleep\noff', 'wake\nsleep\non',
+    categories = ['input:    \nconnectivity:    \nCAN current:    ', 'sleep\nsleep\noff', 'sleep\nsleep\non',
+                  'wake\nsleep\noff', 'wake\nsleep\non',
                   'sleep\nwake\noff', 'sleep\nwake\non', 'wake\nwake\noff', 'wake\nwake\non']
     means = [x[0] for x in [emptyLableInput, sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_sleep_on,
                             sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on]]
@@ -65,9 +66,9 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
 
     # Save plot as PNG file
     uniq_filename = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
-    plt.savefig('Out/Events/eventParameters_'+uniq_filename+'.png')
+    plt.savefig('Out/Events/eventParameters_' + uniq_filename + '.png')
 
 
 if __name__ == '__main__':
-    plot_peak_frequencies([100, 10], [150, 15], [80, 8], [130, 13],
-                      [70, 7], [120, 12], [60, 6], [110, 11])
+    plot_peak_frequencies([56, 33], [60, 48], [56, 33], [64, 39],
+                          [40, 9], [58, 40], [42, 10], [47, 21])
