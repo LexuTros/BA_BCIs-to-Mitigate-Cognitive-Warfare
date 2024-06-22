@@ -68,5 +68,6 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
     plt.savefig('Out/Events/eventParameters_'+uniq_filename+'.png')
 
 
-plot_peak_frequencies([100, 10], [150, 15], [80, 8], [130, 13],
+if __name__ == '__main__':
+    plot_peak_frequencies([100, 10], [150, 15], [80, 8], [130, 13],
                       [70, 7], [120, 12], [60, 6], [110, 11])
