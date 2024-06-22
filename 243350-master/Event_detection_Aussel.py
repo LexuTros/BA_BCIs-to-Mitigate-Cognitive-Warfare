@@ -93,11 +93,10 @@ def event_detection_and_analysis(sig,sigstr,fs):
     mean_dur=mean(all_duration)
     print('Mean duration of the events=' +str(mean_dur*1000)+' ms')
     std_dur=std(all_duration)
-    print('Std of the duration  of the events=' +str(std_dur*1000)+' ms')
+    print('Standard deviation of the duration  of the events=' +str(std_dur*1000)+' ms')
     min_dur=min(all_duration)
     print('Minimum duration of the events=' +str(min_dur))
     max_dur=max(all_duration)
     print('Maximum duration of the events=' +str(max_dur))
     
     return all_spectrum_peak,all_duration
-    

@@ -13,6 +13,7 @@ from brian2 import *
 
 from topology_Aussel import topology
 from Event_detection_Aussel import event_detection_and_analysis
+from plotting_Toellke import *
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib.pyplot import *
@@ -54,8 +55,7 @@ def write_file(simutype,data,tmin,dur):
         time_series.write('%.2E,'%n)
     time_series.write(']\n')
     time_series.close()
-    
-    
+
 
 def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     global inh_eqs, py_eqs, py_CAN_eqs, py_stim_eqs
@@ -592,7 +592,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
 
 #Synthetically generated input records, based on proposition of additional paper:
     # Simulation parameters
-    duration = 1 * second
+    duration = 15 * second
     #record_dt = 1. / 1024 * second  # Sampling interval for TimedArray
 
     # Parameters for square wave
@@ -831,10 +831,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
 
     simu=all_simu_types[type_simu]+version
     write_file(simu,res_1024,0*second,runtime)
+
+    plot_lfp(res_1024, simu, 0.9765625)
     
-    event_detection_and_analysis(res_1024,simu,1024*Hz)
+    event_peak_frequencies = event_detection_and_analysis(res_1024,simu,1024*Hz)
     
-    return res_1024
+    return res_1024, event_peak_frequencies[0]
 
 
 def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
@@ -842,7 +844,7 @@ def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
     #close("all")
 
     global runtime,record_dt,start_ind,simu,version,epilepsy,raster,pCAN
-    runtime =1*second
+    runtime =15*second
     print(runtime)
     record_dt=1./1024 *second
     start_ind=int(500*msecond/record_dt)
@@ -868,18 +870,31 @@ def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
   
     
     all_results=[]
+    all_events=[]
     num_cores = multiprocessing.cpu_count()
 
     #all_results += Parallel(n_jobs=num_cores)(delayed(process)(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) for num_simu in simu_range)
     for num_simu in simu_range:
         result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3)
-        all_results.append(result)
+        all_results.append(result[0])
+        all_events.append(result[1])
 
     print('All the simulations have ended')
-        
+
+    # plot all_events
+    s_s_off = [mean(all_events[0]), std(all_events[0])]
+    s_s_on = [mean(all_events[4]), std(all_events[4])]
+    w_s_off = [mean(all_events[2]), std(all_events[2])]
+    w_s_on = [mean(all_events[6]), std(all_events[6])]
+    s_w_off = [mean(all_events[5]), std(all_events[5])]
+    s_w_on = [mean(all_events[1]), std(all_events[1])]
+    w_w_off = [mean(all_events[7]), std(all_events[7])]
+    w_w_on = [mean(all_events[3]), std(all_events[3])]
+    plot_peak_frequencies(s_s_off, s_s_on, w_s_off, w_s_on, s_w_off, s_w_on, w_w_off, w_w_on)
+
     t2=time.time()
     print('Total simulation time = '+str(int((t2-t1)/60))+' minutes') 
 
 
 if __name__ == '__main__':
-    main_process(range(1), 60*psiemens, 600*psiemens, 0.1, 0.06)
+    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06)
