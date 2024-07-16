@@ -1,18 +1,8 @@
 name: brian2
 channels:
-  - conda-forge
   - defaults
 dependencies:
-  - brian2=2.5.1
-  - contourpy
-  - cycler
-  - cython
-  - joblib
-  - jpeg
+  - python=3.9
+  - brian2
   - matplotlib
-  - matplotlib-base
-  - numpy=1.23.2
-  - openjpeg
-  - py-cpuinfo
-  - python=3.9.19
-  - scipy=1.9.1
+  - joblib
