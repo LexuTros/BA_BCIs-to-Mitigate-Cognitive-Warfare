@@ -27,7 +27,9 @@ def plot_lfp(data, name, timestep_ms):
     plt.grid(True)
 
     # Save the figure
-    filename = f"Out/LFPs/LFP_{name.replace(' ', '_')}_{str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')}.png"
+    timestamp = (str(datetime.datetime.now().date()) + '_'
+                 + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
+    filename = f"Out/LFPs/LFP_{name.replace(' ', '_')}_{timestamp}.png"
     plt.savefig(filename)
     plt.close()  # Close the plotting window after saving to free up resources
 
@@ -65,11 +67,12 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
     plt.tight_layout()
 
     # Save plot as PNG file
-    uniq_filename = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
-    plt.savefig('Out/Events/eventParameters_after_' + str(int(runtime)) + 's__' + uniq_filename + '.png')
+    timestamp = (str(datetime.datetime.now().date()) + '_'
+                     + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
+    plt.savefig('Out/Events/eventParameters_after_' + str(int(runtime)) + 's__' + timestamp + '.png')
 
 
 if __name__ == '__main__':
-    time = 60*second
+    time = 60 * second
     plot_peak_frequencies([56, 33], [60, 48], [56, 33], [64, 39],
                           [40, 9], [58, 40], [42, 10], [47, 21], time)
