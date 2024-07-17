@@ -33,7 +33,7 @@ def plot_lfp(data, name, timestep_ms):
 
 
 def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_sleep_on,
-                          sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on):
+                          sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on, runtime):
     print("plotting frequencies")
     # each parameter of form [mean peak frequency, standard deviation of peak frequencies]
 
@@ -66,9 +66,10 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
 
     # Save plot as PNG file
     uniq_filename = str(datetime.datetime.now().date()) + '_' + str(datetime.datetime.now().time()).replace(':', '.')
-    plt.savefig('Out/Events/eventParameters_' + uniq_filename + '.png')
+    plt.savefig('Out/Events/eventParameters_after_' + str(int(runtime)) + 's__' + uniq_filename + '.png')
 
 
 if __name__ == '__main__':
+    time = 60*second
     plot_peak_frequencies([56, 33], [60, 48], [56, 33], [64, 39],
-                          [40, 9], [58, 40], [42, 10], [47, 21])
+                          [40, 9], [58, 40], [42, 10], [47, 21], time)

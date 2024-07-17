@@ -49,7 +49,7 @@ def write_file(simutype,data,tmin,dur):
     start_ind=int(tmin/record_dt)
     end_ind=int(start_ind+dur/record_dt)
     
-    time_series=open('time_series_'+simutype+'.txt','w')
+    time_series=open('Out/Timeseries/time_series_'+simutype+'.txt','w')
     time_series.write('[')
     for n in data[start_ind:end_ind]:
         time_series.write('%.2E,'%n)
@@ -844,7 +844,7 @@ def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
     #close("all")
 
     global runtime,record_dt,start_ind,simu,version,epilepsy,raster,pCAN
-    runtime =15*second
+    runtime =1*second
     print(runtime)
     record_dt=1./1024 *second
     start_ind=int(500*msecond/record_dt)
@@ -890,7 +890,7 @@ def main_process(simu_range,g_max_e,g_max_i,p_co,p_co_CA3):
     s_w_on = [mean(all_events[1]), std(all_events[1])]
     w_w_off = [mean(all_events[7]), std(all_events[7])]
     w_w_on = [mean(all_events[3]), std(all_events[3])]
-    plot_peak_frequencies(s_s_off, s_s_on, w_s_off, w_s_on, s_w_off, s_w_on, w_w_off, w_w_on)
+    plot_peak_frequencies(s_s_off, s_s_on, w_s_off, w_s_on, s_w_off, s_w_on, w_w_off, w_w_on, runtime)
 
     t2=time.time()
     print('Total simulation time = '+str(int((t2-t1)/60))+' minutes') 
