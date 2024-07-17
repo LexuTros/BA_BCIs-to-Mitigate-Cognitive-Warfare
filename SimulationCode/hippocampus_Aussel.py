@@ -481,7 +481,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
     version='_'+str(ver)+input_num
     type_simu=(num_simu%64)%8
     input_num=ord(input_num)-64
-    
+
+    # only perform simulation if realistic type
+    if type_simu not in [0,3]:
+        print("Simu Type skipped for efficiency")
+        return [0],[0]
+
     print('Building the network')    
               
     preparation(type_simu,g_max_e,g_max_i,p_co,p_co_CA3)
@@ -490,7 +495,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) :
     all_simu_types=['S_S','S_W','W_S','W_W','S_S_CAN','S_W_noCAN','W_S_CAN','W_W_noCAN']
     simu=all_simu_types[type_simu]+version
     print(simu)
-    
+
     if type_simu in [0,1,4,5]:
         stim='sleep'
     else :
