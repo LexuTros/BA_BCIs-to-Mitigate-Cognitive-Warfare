@@ -845,12 +845,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types) :
     return res_1024, event_peak_frequencies[0]
 
 
-def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types):
+def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, sim_time):
     t1=time.time()    
     #close("all")
 
     global runtime,record_dt,start_ind,simu,version,epilepsy,raster,pCAN
-    runtime =1*second
+    runtime = sim_time
     print(runtime)
     record_dt=1./1024 *second
     start_ind=int(500*msecond/record_dt)
@@ -903,4 +903,4 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types):
 
 
 if __name__ == '__main__':
-    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06, True)
+    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06, True, 60*second)
