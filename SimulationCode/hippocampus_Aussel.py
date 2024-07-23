@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import sys
 
 #To use this code you can execute an instruction of the form :
 #main_process(range(8), 60*psiemens,600*psiemens,0.1,0.06)
@@ -463,7 +463,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     connect_2zones('CA1', True, pCAN<1,'EC', True, pCAN<1, str(p_CA1_EC_E), str(p_CA1_EC_I), sig_E,str(var_E_CA1))
 
 
-def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types, sim_time):
+def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     print('Simulation n°'+str(num_simu+1)+'/80')
     global all_CA1_t, all_CA1_i,all_EC_t,all_EC_i
     nb_runs=int(10*runtime/second)
@@ -483,12 +483,11 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types, sim_time):
     input_num=ord(input_num)-64
 
     # only perform simulation if realistic type
-    if reduced_types:
-        if type_simu not in [0, 3]:
-            print("Simu Type skipped for efficiency")
-            return [np.nan], [np.nan]
+    if type_simu not in sim_types:
+        print("Simu Type skipped for efficiency")
+        return [np.nan], [np.nan]
 
-    print('Building the network')    
+    print('Building the network')
               
     preparation(type_simu,g_max_e,g_max_i,p_co,p_co_CA3)
     print('Adding the inputs')
@@ -845,7 +844,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types, sim_time):
     return res_1024, event_peak_frequencies[0]
 
 
-def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, sim_time):
+def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_time):
     t1=time.time()    
     #close("all")
 
@@ -881,7 +880,7 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, si
 
     #all_results += Parallel(n_jobs=num_cores)(delayed(process)(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) for num_simu in simu_range)
     for num_simu in simu_range:
-        result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, sim_time)
+        result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_time)
         all_results.append(result[0])
         all_events.append(result[1])
 
@@ -902,5 +901,29 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, si
     print('Total simulation time = '+str(int((t2-t1)/60))+' minutes') 
 
 
+def resolve_type_index(type_name):
+    all_simu_types = ['S_S', 'S_W', 'W_S', 'W_W', 'S_S_CAN', 'S_W_noCAN', 'W_S_CAN', 'W_W_noCAN']
+
+    if type_name == "all":
+        return [0, 1, 2, 3, 4, 5, 6, 7]
+    elif type_name == "realistic":
+        return [0, 3]
+    elif type_name in all_simu_types:
+        return [all_simu_types.index(type_name)]
+    else:
+        sys.exit("supplied invalid simulation type, abort execution")
+
+
 if __name__ == '__main__':
-    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06, True, 60*second)
+    #print("Supplied parameters:")
+    #print(sys.argv[1:])
+
+    # Extracting and validating input
+    type_idxs = resolve_type_index(sys.argv[1])
+    input_time = int(sys.argv[2]) * second
+
+    print("Running main_process with:")
+    print("Simulation Type indexes: " + str(type_idxs))
+    print("For: ", end="")
+
+    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06, type_idxs, input_time)
