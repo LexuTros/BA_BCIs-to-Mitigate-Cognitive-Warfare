@@ -463,7 +463,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     connect_2zones('CA1', True, pCAN<1,'EC', True, pCAN<1, str(p_CA1_EC_E), str(p_CA1_EC_I), sig_E,str(var_E_CA1))
 
 
-def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types) :
+def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types, sim_time):
     print('Simulation n°'+str(num_simu+1)+'/80')
     global all_CA1_t, all_CA1_i,all_EC_t,all_EC_i
     nb_runs=int(10*runtime/second)
@@ -598,7 +598,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,reduced_types) :
 
 #Synthetically generated input records, based on proposition of additional paper:
     # Simulation parameters
-    duration = 15 * second
+    duration = sim_time
     #record_dt = 1. / 1024 * second  # Sampling interval for TimedArray
 
     # Parameters for square wave
@@ -881,7 +881,7 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, si
 
     #all_results += Parallel(n_jobs=num_cores)(delayed(process)(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) for num_simu in simu_range)
     for num_simu in simu_range:
-        result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types)
+        result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3, reduced_types, sim_time)
         all_results.append(result[0])
         all_events.append(result[1])
 
