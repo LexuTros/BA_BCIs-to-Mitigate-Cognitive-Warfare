@@ -46,10 +46,14 @@ def read_file(filename):
   
 
 def write_file(simutype,data,tmin,dur):
-    start_ind=int(tmin/record_dt)
-    end_ind=int(start_ind+dur/record_dt)
+    start_ind = int(tmin/record_dt)
+    end_ind = int(start_ind+dur/record_dt)
+
+    timestamp = (str(datetime.datetime.now().date()) + '_'
+                 + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
+    sim_time_str = str(int(dur))+"s"
     
-    time_series=open('Out/Timeseries/time_series_'+simutype+'.txt','w')
+    time_series = open('Out/Timeseries/'+simutype+'/'+simutype+'_'+sim_time_str+'__'+timestamp+'.txt', 'w')
     time_series.write('[')
     for n in data[start_ind:end_ind]:
         time_series.write('%.2E,'%n)
@@ -834,12 +838,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     
     all_simu_types=['S_S','S_W','W_S','W_W','S_S_CAN','S_W_noCAN','W_S_CAN','W_W_noCAN']
 
-    simu=all_simu_types[type_simu]+version
-    write_file(simu,res_1024,0*second,runtime)
+    simu_type = all_simu_types[type_simu] #+version
+    write_file(simu_type, res_1024, 0*second, runtime)
 
-    plot_lfp(res_1024, simu, 0.9765625)
+    #plot_lfp(res_1024, simu_type, 0.9765625)
     
-    event_peak_frequencies = event_detection_and_analysis(res_1024,simu,1024*Hz)
+    event_peak_frequencies = event_detection_and_analysis(res_1024, simu_type, 1024*Hz)
     
     return res_1024, event_peak_frequencies[0]
 
@@ -887,15 +891,15 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_ti
     print('All the simulations have ended')
 
     # plot all_events
-    s_s_off = [mean(all_events[0]), std(all_events[0])]
-    s_s_on = [mean(all_events[4]), std(all_events[4])]
-    w_s_off = [mean(all_events[2]), std(all_events[2])]
-    w_s_on = [mean(all_events[6]), std(all_events[6])]
-    s_w_off = [mean(all_events[5]), std(all_events[5])]
-    s_w_on = [mean(all_events[1]), std(all_events[1])]
-    w_w_off = [mean(all_events[7]), std(all_events[7])]
-    w_w_on = [mean(all_events[3]), std(all_events[3])]
-    plot_peak_frequencies(s_s_off, s_s_on, w_s_off, w_s_on, s_w_off, s_w_on, w_w_off, w_w_on, runtime)
+    # s_s_off = [mean(all_events[0]), std(all_events[0])]
+    # s_s_on = [mean(all_events[4]), std(all_events[4])]
+    # w_s_off = [mean(all_events[2]), std(all_events[2])]
+    # w_s_on = [mean(all_events[6]), std(all_events[6])]
+    # s_w_off = [mean(all_events[5]), std(all_events[5])]
+    # s_w_on = [mean(all_events[1]), std(all_events[1])]
+    # w_w_off = [mean(all_events[7]), std(all_events[7])]
+    # w_w_on = [mean(all_events[3]), std(all_events[3])]
+    # plot_peak_frequencies(s_s_off, s_s_on, w_s_off, w_s_on, s_w_off, s_w_on, w_w_off, w_w_on, runtime)
 
     t2=time.time()
     print('Total simulation time = '+str(int((t2-t1)/60))+' minutes') 
