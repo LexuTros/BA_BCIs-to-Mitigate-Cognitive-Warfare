@@ -606,42 +606,51 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
 
     # Parameters for square wave
     A1 = 1  # Amplitude
-    f1 = 5  # Frequency
+    A2 = 1  # Amplitude
+    f1 = 7  # Frequency
+    f2 = 1  # Frequency
     t0 = 0.250  # Start time
 
     # Time array
     times = np.arange(0 * second, duration, record_dt)
 
     # Generate square wave
-    Istim_values = np.zeros_like(times)
+    Istim_values_wake = np.zeros_like(times)
+    Istim_values_sleep = np.zeros_like(times)
     for i, tim in enumerate(times):
         if tim >= t0 and np.sin(2 * np.pi * f1 * (tim - t0)) >= 0:
-            Istim_values[i] = A1
+            Istim_values_wake[i] = A1
+        if tim >= t0 and np.sin(2 * np.pi * f2 * (tim - t0)) >= 0:
+            Istim_values_sleep[i] = A2
+
 
     # Normalize values to range [0, 1]
-    Istim_normalized = (Istim_values - min(Istim_values)) / (max(Istim_values) - min(Istim_values))
+    Istim_normalized_wake = (Istim_values_wake - min(Istim_values_wake)) / (max(Istim_values_wake) - min(Istim_values_wake))
+    Istim_normalized_sleep = (Istim_values_sleep - min(Istim_values_sleep)) / (max(Istim_values_sleep) - min(Istim_values_sleep))
 
     # Add variability: scale down by 5/6 and add random noise up to 1/6 of max value
-    Istim_noisy = 5 / 6 * Istim_normalized + (1 / 6) * np.random.rand(len(Istim_normalized))
+    Istim_noisy_wake = 5 / 6 * Istim_normalized_wake + (1 / 6) * np.random.rand(len(Istim_normalized_wake))
+    Istim_noisy_sleep = 5 / 6 * Istim_normalized_sleep + (1 / 6) * np.random.rand(len(Istim_normalized_sleep))
 
     # Scale to a maximum of 200 Hz (based on previous scaling)
     max_rate = 200 * Hz
-    Istim_scaled = Istim_noisy * max_rate
+    Istim_scaled_wake = Istim_noisy_wake * max_rate
+    Istim_scaled_sleep = Istim_noisy_sleep * max_rate
 
     # Create TimedArray from scaled data
-    Istim_timed = TimedArray(Istim_scaled, dt=record_dt)
+    Istim_timed_wake = TimedArray(Istim_scaled_wake, dt=record_dt)
+    Istim_timed_sleep = TimedArray(Istim_scaled_sleep, dt=record_dt)
 
     
     #ajout des inputs
     if stim=='sleep':
-        #print('test')
-        inputs1=Istim_timed
-        inputs2=Istim_timed
-        inputs3=Istim_timed
+        inputs1=Istim_timed_sleep
+        inputs2=Istim_timed_sleep
+        inputs3=Istim_timed_sleep
     else :
-        inputs1=Istim_timed
-        inputs2=Istim_timed
-        inputs3=Istim_timed
+        inputs1=Istim_timed_wake
+        inputs2=Istim_timed_wake
+        inputs3=Istim_timed_wake
     
 
     In_exc1=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs1(t)*tstep', dt=record_dt)    #dt ? record_dt ?
