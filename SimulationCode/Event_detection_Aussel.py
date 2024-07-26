@@ -21,9 +21,9 @@ def frequency_band_analysis(N, low, high, event, fs):
         y = scipy.signal.filtfilt(b, a, event)
         f, Pxx_spec = signal.periodogram(y, fs, 'flattop', scaling='spectrum')
 
-        return f, Pxx_spec
+        return f, Pxx_spec, y
     except:
-        return [], []
+        return [], [], []
 
 
 def event_detection_and_analysis(sig, sigstr, fs):
@@ -74,6 +74,9 @@ def event_detection_and_analysis(sig, sigstr, fs):
     gamma_spectrum = []
     ripple_spectrum = []
 
+    events = []
+    filtered_events = []
+
     N = 3
     nyq = 0.5 * fs
     low = 30 / nyq
@@ -82,7 +85,6 @@ def event_detection_and_analysis(sig, sigstr, fs):
     test_ind = 0
 
     num_events = len(all_begin)
-    sample_event_idxs = [num_events // 4, num_events // 2, num_events // 2 + num_events // 4]
 
     # general analysis
     for i in range(num_events):
@@ -91,8 +93,10 @@ def event_detection_and_analysis(sig, sigstr, fs):
         duration = len(event) * record_dt
 
         # Original/general analysis
-        f, Pxx_spec = frequency_band_analysis(N, low, high, event, fs)
+        f, Pxx_spec, filtered_event = frequency_band_analysis(N, low, high, event, fs)
         if len(f) != 0 and len(Pxx_spec) != 0:
+            events.append(event)
+            filtered_events.append(filtered_event)
             all_duration.append(duration)
             all_spectrum.append(Pxx_spec)
             all_spectrum_peak.append(f[argmax(Pxx_spec)])
@@ -104,11 +108,8 @@ def event_detection_and_analysis(sig, sigstr, fs):
 
         test_ind += 1
 
-        # if i in sample_event_idxs:
-        #     plotting_Toellke.plot_lfp(event, sigstr + "_event_" + str(i), 0.9765625)
-        #     plotting_Toellke.plot_lfp(y, sigstr + "_filtered_event_" + str(i), 0.9765625)
-
     band_spectra = [theta_spectrum, gamma_spectrum, ripple_spectrum]
+    all_events = [events, filtered_events]
 
     print('Analysis of the simulation ' + sigstr + ' :')
     print("Number of studied events : " + str(test_ind))
@@ -132,4 +133,4 @@ def event_detection_and_analysis(sig, sigstr, fs):
     max_dur = max(all_duration)
     print('Maximum duration of the events=' + str(max_dur))
 
-    return all_spectrum_peak, band_spectra
+    return all_spectrum_peak, band_spectra, all_events

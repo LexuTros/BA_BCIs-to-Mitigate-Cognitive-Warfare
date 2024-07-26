@@ -6,7 +6,7 @@ from brian2 import *
 import Event_detection_Aussel
 
 
-def create_list_from_timeSeries(file_name):
+def create_list_from_timeSeries(file_path):
     """
         Reads a file containing a single line list of floats in scientific notation and returns it as a list of floats.
 
@@ -16,7 +16,7 @@ def create_list_from_timeSeries(file_name):
         Returns:
         list: A list of floats contained in the file.
         """
-    with open(file_name, 'r') as file:
+    with open(file_path, 'r') as file:
         # Read the single line from the file
         data_line = file.readline().strip()
 
@@ -27,53 +27,50 @@ def create_list_from_timeSeries(file_name):
         return data_list
 
 
-def plot_lfp(data, name, timestep_ms):
+def plot_lfp(recordings, sim_label):
     """
     Plots local field potentials over time and saves the plot as a PNG file.
 
     Parameters:
-        data (list of float): The local field potential data.
-        name (str): Specific name to include in the file name and plot title.
-        timestep_ms (float): The time interval in milliseconds between each data point.
+        recordings (list of float): The local field potential data.
+        sim_label (str): Specific name to include in the file name and plot title.
     """
 
-    print("plotting LFP")
+    timestep_ms = 0.9765625
     # Generate time points starting from 0, incrementing by the specified timestep for each data point
-    time_points = [i * timestep_ms for i in range(len(data))]
+    time_points = [i * timestep_ms for i in range(len(recordings))]
 
     # Create a plot
     plt.figure(figsize=(10, 5))
-    plt.plot(time_points, data, label='Local Field Potentials')
+    plt.plot(time_points, recordings, label='Local Field Potentials')
     plt.xlabel('Time (ms)')
     plt.ylabel('Potential (V)')
-    plt.title(f'Local Field Potential Over Time: {name}')
-    plt.legend()
+    plt.title(f'Local Field Potential Over Time: {sim_label}')
     plt.grid(True)
     plt.show()
 
     # Save the figure
-    timestamp = (str(datetime.datetime.now().date()) + '_'
-                 + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
-    filename = f"Out/LFPs/LFP_{name.replace(' ', '_')}_{timestamp}.png"
+    #timestamp = (str(datetime.datetime.now().date()) + '_'
+    #             + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
+    #filename = f"Out/LFPs/LFP_{sim_label.replace(' ', '_')}_{timestamp}.png"
     #plt.savefig(filename)
     #plt.close()  # Close the plotting window after saving to free up resources
 
 
-def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_sleep_on,
-                          sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on):
-    # each parameter of form [peak frequency values]
+def plot_peak_frequencies(peak_frequencies, sim_time_str):
+    # parameter of form [[sleep_sleep_off], [sleep_sleep_on], [wake_sleep_off], [wake_sleep_on],
+    #                           [sleep_wake_off], [sleep_wake_on], [wake_wake_off], [wake_wake_on]]
 
     # Prepare data
     categories = ['input:    \nconnectivity:    \nCAN current:    ', 'sleep\nsleep\noff', 'sleep\nsleep\non',
                   'wake\nsleep\noff', 'wake\nsleep\non', 'sleep\nwake\noff',
                   'sleep\nwake\non', 'wake\nwake\noff', 'wake\nwake\non']
 
-    emptyLableInput = [np.nan, np.nan]
-    data = [emptyLableInput, sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_sleep_on,
-            sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on]
+    emptyLabelInput = [np.nan, np.nan]
+    peak_frequencies.insert(0, emptyLabelInput)
 
-    means = [np.mean(x) for x in data]
-    std_devs = [np.std(x) for x in data]
+    means = [np.mean(x) for x in peak_frequencies]
+    std_devs = [np.std(x) for x in peak_frequencies]
 
     # Create figure and axis
     fig, ax = plt.subplots(figsize=(6, 5))  # Adjust figure size to ensure everything fits well
@@ -82,6 +79,7 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
     ax.errorbar(categories, means, yerr=std_devs, fmt='o', color='blue', ecolor='blue', capsize=5)
 
     # Setting labels and title
+    ax.set_title(f'Frequencies with highest power - {sim_time_str} simulation')
     ax.set_ylabel('Peak Frequency (Hz)')
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
@@ -99,25 +97,27 @@ def plot_peak_frequencies(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_
     #plt.savefig('Out/Events/eventParameters_after_' + str(int(runtime)) + 's__' + timestamp + '.png')
 
 
-def plot_power_spectral_density_bands(sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_sleep_on,
-                                      sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on):
+def plot_power_spectral_density_bands(psd_bands, sim_time_str):
+    # parameter of form [[sleep_sleep_off], [sleep_sleep_on], [wake_sleep_off], [wake_sleep_on],
+    #                           [sleep_wake_off], [sleep_wake_on], [wake_wake_off], [wake_wake_on]]
+    #       with [sleep_sleep_off] = [[theta_band], [gamma_band], [ripple_band]]
+
     categories = ['input:    \nconnectivity:    \nCAN current:    ', 'sleep\nsleep\noff',
                   'sleep\nsleep\non', 'wake\nsleep\noff', 'wake\nsleep\non', 'sleep\nwake\noff',
                   'sleep\nwake\non', 'wake\nwake\noff', 'wake\nwake\non']
 
-    emptyLableInput = [[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]]
-    data = [emptyLableInput, sleep_sleep_off, sleep_sleep_on, wake_sleep_off, wake_sleep_on,
-            sleep_wake_off, sleep_wake_on, wake_wake_off, wake_wake_on]
+    emptyLabelInput = [[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]]
+    psd_bands.insert(0, emptyLabelInput)
 
     # Extract means and standard deviations for Theta (0), Gamma (1), Ripple (2) bands
-    theta_means = [np.mean(x[0]) for x in data]
-    theta_stds = [np.std(x[0]) for x in data]
+    theta_means = [np.mean(x[0]) for x in psd_bands]
+    theta_stds = [np.std(x[0]) for x in psd_bands]
 
-    gamma_means = [np.mean(x[1]) for x in data]
-    gamma_stds = [np.std(x[1]) for x in data]
+    gamma_means = [np.mean(x[1]) for x in psd_bands]
+    gamma_stds = [np.std(x[1]) for x in psd_bands]
 
-    ripple_means = [np.mean(x[2]) for x in data]
-    ripple_stds = [np.std(x[2]) for x in data]
+    ripple_means = [np.mean(x[2]) for x in psd_bands]
+    ripple_stds = [np.std(x[2]) for x in psd_bands]
 
     # Number of groups
     n_groups = len(categories)
@@ -142,7 +142,7 @@ def plot_power_spectral_density_bands(sleep_sleep_off, sleep_sleep_on, wake_slee
 
     # Axis labels etc.
     ax.set_ylabel('Power (V^2)')
-    ax.set_title('Power in oscillation bands')
+    ax.set_title(f'Power in oscillation bands - {sim_time_str} simulation')
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
     ax.set_xlim(left=0)  # Set the left boundary of the x-axis slightly less than the index of the first category
@@ -168,14 +168,62 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
+def single_file_analysis(file_path):
+    # Extract strings from path
+    sim_type, file_name = file_path.split("/")[-2:]
+    sim_label = file_name.split("__")[0]
+    sim_time = sim_label.split("_")[-1]
+
+    # extract and analyse data
+    recordings = create_list_from_timeSeries(file_path)
+    spectrum_peaks, band_spectra, all_events = Event_detection_Aussel.event_detection_and_analysis(recordings, sim_label, 1024 * Hz)
+    events, filtered_events = all_events
+
+    # prepare plotting parameters
+    # General LFP
+    lfp_recording_samples = []
+
+    if len(recordings) < 6144:
+        lfp_recording_samples.append(recordings) # if shorter than 6s, plot all
+    else:
+        lfp_recording_samples.append(recordings[1024:6144]) # 5s recording, starting at 1s
+    if len(recordings) > 51200:
+        lfp_recording_samples.append(recordings[40960:51201]) # 10s recording, starting at 40s
+
+    # Spectra analysis
+    spectrum_peaks_parameter = [[np.nan, np.nan] for x in range(8)]
+    band_spectra_parameter = [[[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]] for x in range(8)]
+
+    plotting_parameter_order = ['S_S', 'S_S_CAN', 'W_S', 'W_S_CAN', 'S_W_noCAN', 'S_W', 'W_W_noCAN', 'W_W',]
+    sim_type_idx = plotting_parameter_order.index(sim_type)
+
+    spectrum_peaks_parameter[sim_type_idx] = spectrum_peaks
+    band_spectra_parameter[sim_type_idx] = band_spectra
+
+    # Event LFPs
+    sample_event_idxs = []
+
+    num_events = len(events)
+    if num_events:
+        if num_events < 4:
+            sample_event_idxs = [0]
+        else:
+            sample_event_idxs = [num_events // 4, num_events // 2 + num_events // 4]
+
+    # generate plots
+    for recording_sample in lfp_recording_samples:
+        plot_lfp(recording_sample, sim_label)
+
+    plot_peak_frequencies(spectrum_peaks_parameter, sim_time)
+    plot_power_spectral_density_bands(band_spectra_parameter, sim_time)
+
+    for idx in sample_event_idxs:
+        plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
+        plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
+
+
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/time_series_W_S_1A.txt"
-    data = create_list_from_timeSeries(filename)
-    #plot_lfp(data, "manual_S_S_CAN", 0.9765625)
-    spectrum_peaks, band_spectra = Event_detection_Aussel.event_detection_and_analysis(data, "manual_W_S", 1024 * Hz)
+    filename = "Out/Timeseries/W_W_noCAN/W_W_noCAN_1s__2024-07-26_11.23.txt"
+    single_file_analysis(filename)
 
-    plot_peak_frequencies(spectrum_peaks, spectrum_peaks, spectrum_peaks, spectrum_peaks, spectrum_peaks,
-                          spectrum_peaks, spectrum_peaks, spectrum_peaks)
-    plot_power_spectral_density_bands(band_spectra, band_spectra, band_spectra, band_spectra, band_spectra,
-                                      band_spectra, band_spectra, band_spectra)
