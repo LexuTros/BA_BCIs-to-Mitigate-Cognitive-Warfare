@@ -49,8 +49,7 @@ def write_file(simutype,data,tmin,dur):
     start_ind = int(tmin/record_dt)
     end_ind = int(start_ind+dur/record_dt)
 
-    timestamp = (str(datetime.datetime.now().date()) + '_'
-                 + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
     sim_time_str = str(int(dur))+"s"
     
     time_series = open('Out/Timeseries/'+simutype+'/'+simutype+'_'+sim_time_str+'__'+timestamp+'.txt', 'w')
