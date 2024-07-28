@@ -152,7 +152,7 @@ def plot_power_spectral_density_bands(psd_bands, sim_time_str):
     ax.set_yscale('log')
 
     # Set limits and ticks on y-axis to match original plot
-    #ax.set_ylim(1e-15, 1e-8)  # Adjust as necessary based on your data range
+    ax.set_ylim(1e-18, 1e-8)  # Adjust as necessary based on your data range
     ax.yaxis.set_tick_params(which='both', labelleft=True)
 
     fig.tight_layout()
@@ -225,6 +225,6 @@ def single_file_analysis(file_path, showLFP):
 
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/W_W/W_W_30s__2024-07-27_01.14.txt"
+    filename = "Out/Timeseries/S_S/S_S_15s__2024-07-26_20.14.txt"
     single_file_analysis(filename, False)
 
