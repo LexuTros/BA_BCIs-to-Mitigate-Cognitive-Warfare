@@ -605,10 +605,10 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     #record_dt = 1. / 1024 * second  # Sampling interval for TimedArray
 
     # Parameters for square wave
-    A1 = 1  # Amplitude
+    A1 = 0.5  # Amplitude
     A2 = 1  # Amplitude
-    f1 = 7  # Frequency
-    f2 = 1  # Frequency
+    f1 = 5  # Frequency
+    f2 = 0.1  # Frequency
     t0 = 0.250  # Start time
 
     # Time array
