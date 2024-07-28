@@ -168,7 +168,7 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_file_analysis(file_path):
+def single_file_analysis(file_path, showLFP):
     # Extract strings from path
     sim_type, file_name = file_path.split("/")[-2:]
     sim_label = file_name.split("__")[0]
@@ -190,16 +190,6 @@ def single_file_analysis(file_path):
     if len(recordings) > 51200:
         lfp_recording_samples.append(recordings[40960:51201]) # 10s recording, starting at 40s
 
-    # Spectra analysis
-    spectrum_peaks_parameter = [[np.nan, np.nan] for x in range(8)]
-    band_spectra_parameter = [[[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]] for x in range(8)]
-
-    plotting_parameter_order = ['S_S', 'S_S_CAN', 'W_S', 'W_S_CAN', 'S_W_noCAN', 'S_W', 'W_W_noCAN', 'W_W',]
-    sim_type_idx = plotting_parameter_order.index(sim_type)
-
-    spectrum_peaks_parameter[sim_type_idx] = spectrum_peaks
-    band_spectra_parameter[sim_type_idx] = band_spectra
-
     # Event LFPs
     sample_event_idxs = []
 
@@ -210,20 +200,31 @@ def single_file_analysis(file_path):
         else:
             sample_event_idxs = [num_events // 4, num_events // 2 + num_events // 4]
 
+    # Spectra analysis
+    spectrum_peaks_parameter = [[np.nan, np.nan] for x in range(8)]
+    band_spectra_parameter = [[[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]] for x in range(8)]
+
+    plotting_parameter_order = ['S_S', 'S_S_CAN', 'W_S', 'W_S_CAN', 'S_W_noCAN', 'S_W', 'W_W_noCAN', 'W_W',]
+    sim_type_idx = plotting_parameter_order.index(sim_type)
+
+    spectrum_peaks_parameter[sim_type_idx] = spectrum_peaks
+    band_spectra_parameter[sim_type_idx] = band_spectra
+
     # generate plots
-    for recording_sample in lfp_recording_samples:
-        plot_lfp(recording_sample, sim_label)
+    if showLFP:
+        for recording_sample in lfp_recording_samples:
+            plot_lfp(recording_sample, sim_label)
+
+        for idx in sample_event_idxs:
+            plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
+            plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
 
     plot_peak_frequencies(spectrum_peaks_parameter, sim_time)
     plot_power_spectral_density_bands(band_spectra_parameter, sim_time)
 
-    for idx in sample_event_idxs:
-        plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
-        plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
-
 
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/W_W_noCAN/W_W_noCAN_1s__2024-07-26_11.23.txt"
-    single_file_analysis(filename)
+    filename = "Out/Timeseries/W_W/W_W_30s__2024-07-27_01.14.txt"
+    single_file_analysis(filename, False)
 
