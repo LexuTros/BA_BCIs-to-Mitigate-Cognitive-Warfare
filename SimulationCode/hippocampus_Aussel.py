@@ -604,10 +604,10 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     #record_dt = 1. / 1024 * second  # Sampling interval for TimedArray
 
     # Parameters for square wave
-    A1 = 0.5  # Amplitude
+    A1 = 1  # Amplitude
     A2 = 1  # Amplitude
-    f1 = 5  # Frequency
-    f2 = 0.1  # Frequency
+    f1 = 2  # Frequency
+    f2 = 1  # Frequency
     t0 = 0.250  # Start time
 
     # Time array
@@ -619,7 +619,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     for i, tim in enumerate(times):
         if tim >= t0 and np.sin(2 * np.pi * f1 * (tim - t0)) >= 0:
             Istim_values_wake[i] = A1
-        if tim >= t0 and np.sin(2 * np.pi * f2 * (tim - t0)) >= 0:
+        if tim >= t0 and np.sin(2 * np.pi * f2 * (tim - t0)) >= 0 and i % 3 == 0:
             Istim_values_sleep[i] = A2
 
 
@@ -628,7 +628,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     Istim_normalized_sleep = (Istim_values_sleep - min(Istim_values_sleep)) / (max(Istim_values_sleep) - min(Istim_values_sleep))
 
     # Add variability: scale down by 5/6 and add random noise up to 1/6 of max value
-    Istim_noisy_wake = 5 / 6 * Istim_normalized_wake + (1 / 6) * np.random.rand(len(Istim_normalized_wake))
+    Istim_noisy_wake = 3 / 6 * Istim_normalized_wake + (3 / 6) * np.random.rand(len(Istim_normalized_wake))
     Istim_noisy_sleep = 5 / 6 * Istim_normalized_sleep + (1 / 6) * np.random.rand(len(Istim_normalized_sleep))
 
     # Scale to a maximum of 200 Hz (based on previous scaling)
