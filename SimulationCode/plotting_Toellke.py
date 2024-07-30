@@ -45,6 +45,7 @@ def plot_lfp(recordings, sim_label):
     plt.plot(time_points, recordings, label='Local Field Potentials')
     plt.xlabel('Time (ms)')
     plt.ylabel('Potential (V)')
+    plt.ylim(top=5e-6)
     plt.title(f'Local Field Potential Over Time: {sim_label}')
     plt.grid(True)
     plt.show()
@@ -168,11 +169,12 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_file_analysis(file_path, showLFP):
+def single_file_analysis(file_path, showLFP, showEventLFP):
     # Extract strings from path
     sim_type, file_name = file_path.split("/")[-2:]
     sim_label = file_name.split("__")[0]
     sim_time = sim_label.split("_")[-1]
+    research_param = file_name.split("__")[1]
 
     # extract and analyse data
     recordings = create_list_from_timeSeries(file_path)
@@ -213,8 +215,9 @@ def single_file_analysis(file_path, showLFP):
     # generate plots
     if showLFP:
         for recording_sample in lfp_recording_samples:
-            plot_lfp(recording_sample, sim_label)
+            plot_lfp(recording_sample, f"{sim_label} with RP={research_param}")
 
+    if showEventLFP:
         for idx in sample_event_idxs:
             plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
             plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
@@ -225,6 +228,6 @@ def single_file_analysis(file_path, showLFP):
 
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/S_S/S_S_15s__2024-07-26_20.14.txt"
-    single_file_analysis(filename, False)
+    filename = "Out/Timeseries/S_S/S_S_1s__RP3__2024-07-30_16.39.33.txt"
+    single_file_analysis(filename, 1, 0)
 
