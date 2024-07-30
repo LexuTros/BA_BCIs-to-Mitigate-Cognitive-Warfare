@@ -45,14 +45,15 @@ def read_file(filename):
     return data_array
   
 
-def write_file(simutype,data,tmin,dur):
+def write_file(simutype,data,tmin,dur,rp):
     start_ind = int(tmin/record_dt)
     end_ind = int(start_ind+dur/record_dt)
 
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
     sim_time_str = str(int(dur))+"s"
+    research_param_str = "RP" + str(rp)
     
-    time_series = open('Out/Timeseries/'+simutype+'/'+simutype+'_'+sim_time_str+'__'+timestamp+'.txt', 'w')
+    time_series = open('Out/Timeseries/'+simutype+'/'+simutype+'_'+sim_time_str+'__'+research_param_str+'__'+timestamp+'.txt', 'w')
     time_series.write('[')
     for n in data[start_ind:end_ind]:
         time_series.write('%.2E,'%n)
@@ -466,7 +467,7 @@ def preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3):
     connect_2zones('CA1', True, pCAN<1,'EC', True, pCAN<1, str(p_CA1_EC_E), str(p_CA1_EC_I), sig_E,str(var_E_CA1))
 
 
-def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
+def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research_value):
     print('Simulation n°'+str(num_simu+1)+'/80')
     global all_CA1_t, all_CA1_i,all_EC_t,all_EC_i
     nb_runs=int(10*runtime/second)
@@ -610,17 +611,32 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     f2 = 1  # Frequency
     t0 = 0.250  # Start time
 
+    wave_realization_in = 3
+    noise_scaling_factor = 3
+    # Assign research parameter
+    if stim == "sleep":
+        wave_realization_in = research_value
+    else:
+        noise_scaling_factor = research_value
+
     # Time array
     times = np.arange(0 * second, duration, record_dt)
 
     # Generate square wave
     Istim_values_wake = np.zeros_like(times)
     Istim_values_sleep = np.zeros_like(times)
+
+    def is_in_correct_cycle(input_frequency, current_time, wave_realization_interval):
+        ms_per_cycle = 1 / input_frequency
+        wave_number = int((current_time - t0) / ms_per_cycle) + wave_realization_interval # adding interval enusres input starts at t0
+        return wave_number % wave_realization_interval == 0
+
     for i, tim in enumerate(times):
         if tim >= t0 and np.sin(2 * np.pi * f1 * (tim - t0)) >= 0:
-            Istim_values_wake[i] = A1
-        if tim >= t0 and np.sin(2 * np.pi * f2 * (tim - t0)) >= 0 and i % 3 == 0:
-            Istim_values_sleep[i] = A2
+            Istim_values_wake[i] = A1 * np.sin(2 * np.pi * f1 * (tim - t0))
+        if tim >= t0 and np.sin(2 * np.pi * f2 * (tim - t0)) >= 0:
+            if is_in_correct_cycle(f2, tim, wave_realization_in):
+                Istim_values_sleep[i] = A2
 
 
     # Normalize values to range [0, 1]
@@ -628,7 +644,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     Istim_normalized_sleep = (Istim_values_sleep - min(Istim_values_sleep)) / (max(Istim_values_sleep) - min(Istim_values_sleep))
 
     # Add variability: scale down by 5/6 and add random noise up to 1/6 of max value
-    Istim_noisy_wake = 3 / 6 * Istim_normalized_wake + (3 / 6) * np.random.rand(len(Istim_normalized_wake))
+    Istim_noisy_wake = (6-noise_scaling_factor) / 6 * Istim_normalized_wake + (noise_scaling_factor / 6) * np.random.rand(len(Istim_normalized_wake))
     Istim_noisy_sleep = 5 / 6 * Istim_normalized_sleep + (1 / 6) * np.random.rand(len(Istim_normalized_sleep))
 
     # Scale to a maximum of 200 Hz (based on previous scaling)
@@ -681,7 +697,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
             S32.connect(p=p_in)
     
     #### Simultation #######
-    print('Changing compilation method')
+    #print('Changing compilation method')
     #prefs.codegen.target = 'cython'
     
     single_runtime=runtime/nb_runs
@@ -847,7 +863,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     all_simu_types=['S_S','S_W','W_S','W_W','S_S_CAN','S_W_noCAN','W_S_CAN','W_W_noCAN']
 
     simu_type = all_simu_types[type_simu] #+version
-    write_file(simu_type, res_1024, 0*second, runtime)
+    write_file(simu_type, res_1024, 0*second, runtime, research_value)
 
     #plot_lfp(res_1024, simu_type, 0.9765625)
     
@@ -856,14 +872,14 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time):
     return res_1024, event_peak_frequencies[0]
 
 
-def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_time):
+def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_time, research_value):
     t1=time.time()    
     #close("all")
 
     global runtime,record_dt,start_ind,simu,version,epilepsy,raster,pCAN
     runtime = sim_time
     print(runtime)
-    record_dt=1./1024 *second
+    record_dt=defaultclock.dt
     start_ind=int(500*msecond/record_dt)
     tstep=defaultclock.dt
     
@@ -892,7 +908,7 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_ti
 
     #all_results += Parallel(n_jobs=num_cores)(delayed(process)(num_simu,g_max_e,g_max_i,p_co,p_co_CA3) for num_simu in simu_range)
     for num_simu in simu_range:
-        result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_time)
+        result = process(num_simu, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_time, research_value)
         all_results.append(result[0])
         all_events.append(result[1])
 
@@ -933,9 +949,11 @@ if __name__ == '__main__':
     # Extracting and validating input
     type_idxs = resolve_type_index(sys.argv[1])
     input_time = int(sys.argv[2]) * second
+    research_parameter = int(sys.argv[3])
 
     print("Running main_process with:")
+    print("Research Parameter: " + str(research_parameter))
     print("Simulation Type indexes: " + str(type_idxs))
     print("For: ", end="")
 
-    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06, type_idxs, input_time)
+    main_process(range(8), 60*psiemens, 600*psiemens, 0.1, 0.06, type_idxs, input_time, research_parameter)
