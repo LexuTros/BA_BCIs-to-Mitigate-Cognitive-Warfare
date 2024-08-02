@@ -171,10 +171,10 @@ def plot_power_spectral_density(frequencies, power_densities):
 
 def single_file_analysis(file_path, showLFP, showEventLFP):
     # Extract strings from path
-    sim_type, file_name = file_path.split("/")[-2:]
-    sim_label = file_name.split("__")[0]
-    sim_time = sim_label.split("_")[-1]
-    research_param = file_name.split("__")[1]
+    sim_type = "S_S"
+    sim_label = "S_S_1s"
+    sim_time = "1s"
+    research_param = ""
 
     # extract and analyse data
     recordings = create_list_from_timeSeries(file_path)
@@ -228,6 +228,6 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
 
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/S_S/S_S_45s__RP4__2024-07-31_07.32.47.txt"
+    filename = "results_2024-08-02 15-39-18.658170/LFP_CA3_e1.txt"
     single_file_analysis(filename, 1, 1)
 

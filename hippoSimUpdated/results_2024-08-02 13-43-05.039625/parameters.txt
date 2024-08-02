@@ -1,0 +1,28 @@
+runtime: 0.5 s
+plot_raster: True
+types: [1, 1]
+all_N: [10000, 10000, 1000, 10000, 1000, 100, 100, 1000]
+topo: normal
+co: normal
+co2: normal
+A0: 0.0
+A1: 1.0
+dur: 4.5 s
+f1: 2.5 Hz
+duty_cycle: 0.5
+input_type: square
+all_p_intra: [[[0, 0.37], [0.54, 0]], [[0.0, 0.06], [0.14, 0]], [[0.56, 0.75], [0.75, 0]], [[0, 0.28], [0.3, 0.7]]]
+all_p_inter: [[[[0, 0]], [[0.45, 0.45]], [[0.2, 0.2]], [[0.2, 0.2]]], [[[0, 0]], [[0, 0]], [[0.45, 0.45]], [[0.0, 0.0]]], [[[0, 0]], [[0, 0]], [[0, 0]], [[0.45, 0.45]]], [[[0.45, 0.45]], [[0, 0]], [[0, 0]], [[0, 0]]]]
+all_gains: [[1, 1], [1, 1], [1, 1], [1, 1]]
+all_g_max_i: [0.6 * nsiemens]
+all_g_max_e: [60. * psiemens]
+gCAN: 0.005 m^-4 kg^-1 s^3 A^2
+save_sim_raster: False
+save_neuron_pos: False
+save_syn_mat: False
+in_file_1: 
+in_file_2: 
+in_file_3: 
+in_fs: 1.024 kHz
+tau_Cl: 100. ms
+Ek: -100. mV
