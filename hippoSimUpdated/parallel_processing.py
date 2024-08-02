@@ -49,7 +49,7 @@ liste_co_type2=['normal'] #list of strings ('normal' or 'uniform'), to choose be
 #sleep-wake parameters
 liste_gCAN=[(0.5*usiemens*cmeter**-2,25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
 liste_CAN=['sleep'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances
-liste_G_ACh=[3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation
+liste_G_ACh=[3, 1] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation
 liste_functional_co=['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity
 
 
