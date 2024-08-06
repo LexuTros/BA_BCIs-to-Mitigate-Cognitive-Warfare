@@ -26,13 +26,13 @@ import ntpath
 from itertools import *
 
 
-path=""
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
 if os.name == 'nt':
-    path=os.path.join(ntpath.dirname(os.path.abspath(__file__)),"results_"+timestamp)
-else :
-    path=".\results_"+timestamp # TODO!!!
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+else:
+    base_dir = os.getcwd()
 
+path = os.path.join(base_dir, "results_" + timestamp)
 os.mkdir(path)
 
 #Basic network parameters
@@ -49,7 +49,7 @@ liste_co_type2=['normal'] #list of strings ('normal' or 'uniform'), to choose be
 #sleep-wake parameters
 liste_gCAN=[(0.5*usiemens*cmeter**-2,25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
 liste_CAN=['sleep'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances
-liste_G_ACh=[3, 1] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation
+liste_G_ACh=[3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation
 liste_functional_co=['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity
 
 
@@ -77,10 +77,10 @@ liste_duty_cycle=[0.5] #list of floats, representing the duty cycle of the squar
 
 
 #simulation duration
-liste_runtime=[60*second, 60*second] #list of floats, representing the duration of the simulation (in second)
+liste_runtime=[1*second] #list of floats, representing the duration of the simulation (in second)
 
 #simulation output :
-plot_raster,save_raster,save_neuron_pos,save_syn_mat,save_all_FR=True,True,True,True,True #each boolean indicates if the specified output must be saved for all set of simulations
+plot_raster,save_raster,save_neuron_pos,save_syn_mat,save_all_FR=True,False,False,False,False #each boolean indicates if the specified output must be saved for all set of simulations
 
 
 liste_simus=list(product(liste_Ntypes,liste_maxN,liste_p_tri,liste_p_mono,liste_g_max_i,liste_g_max_e,liste_topo_type,liste_co_type,liste_co_type2,liste_gCAN,liste_CAN,liste_G_ACh,liste_functional_co,liste_sprouting,liste_sclerosis,liste_lesion_region,liste_tau_Cl,liste_Ek,liste_input_type,liste_custom_inputs,liste_A0,liste_A1,liste_dur,liste_f1,liste_duty_cycle,liste_runtime))

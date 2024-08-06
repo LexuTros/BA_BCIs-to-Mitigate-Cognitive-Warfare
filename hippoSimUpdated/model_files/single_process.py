@@ -32,7 +32,7 @@ def process(runtime, plot_raster,types,all_N,topo,co,co2,A0,A1,dur,f1,duty_cycle
     pas_de_temps=defaultclock.dt 
     p_in=0.05
     debut=time.time()
-    bis=True
+    bis=False
     #    version='_'+str(ver)+input_num
 #    input_num=ord(input_num)-64
     if topo=='normal':

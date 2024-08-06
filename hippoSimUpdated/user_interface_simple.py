@@ -207,17 +207,14 @@ def start():
     
     interface.destroy()
     start_scope()
-    
-    path=''
-    
+
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
-
     if os.name == 'nt':
-        path=os.path.join(ntpath.dirname(os.path.abspath(__file__)),"results_"+timestamp)
-    else :
-        path="./results_"+timestamp #TODO!!!
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    else:
+        base_dir = os.getcwd()
 
-
+    path = os.path.join(base_dir, "results_" + timestamp)
     os.mkdir(path)
     
 #    process(runtime,plot_raster,types,all_N,topo,co,co2,A0,A1,dur,f1,duty,input_type,all_p_intra,all_p_inter,all_gains,all_g_max_i,all_g_max_e,gCAN,save_raster,save_neuron_pos,save_syn_mat,path) 
