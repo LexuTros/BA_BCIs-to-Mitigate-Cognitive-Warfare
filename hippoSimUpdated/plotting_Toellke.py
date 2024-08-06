@@ -27,6 +27,26 @@ def create_list_from_timeSeries(file_path):
         return data_list
 
 
+def extract_sim_parameters(folder_path):
+    file_path = f'{folder_path}/parameters.txt'
+
+    with open(file_path, 'r') as file:
+        file_lines = file.readlines()
+
+        parameters = {}
+
+        for line in file_lines:
+            stripped_line = line.strip()
+            param_name, value = stripped_line.split(": ")
+
+            parameters[param_name] = value
+
+    # Format parameters
+    parameters["runtime"] = parameters["runtime"].replace(". ", "")
+
+    return parameters
+
+
 def plot_lfp(recordings, sim_label):
     """
     Plots local field potentials over time and saves the plot as a PNG file.
@@ -169,15 +189,16 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_file_analysis(file_path, showLFP, showEventLFP):
-    # Extract strings from path
+def single_file_analysis(folder_path, showLFP, showEventLFP):
+    parameters = extract_sim_parameters(folder_path)
     sim_type = "S_S"
-    sim_label = "S_S_1s"
-    sim_time = "1s"
+    sim_label = f"{sim_type}_{parameters['runtime']}"
     research_param = ""
 
+    filename = folder_path + "/LFP.txt"
+
     # extract and analyse data
-    recordings = create_list_from_timeSeries(file_path)
+    recordings = create_list_from_timeSeries(filename)
     spectrum_peaks, band_spectra, all_events = Event_detection_Aussel.event_detection_and_analysis(recordings, sim_label, 1024 * Hz)
     events, filtered_events = all_events
 
@@ -215,19 +236,19 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
     # generate plots
     if showLFP:
         for recording_sample in lfp_recording_samples:
-            plot_lfp(recording_sample, f"{sim_label} with RP={research_param}")
+            plot_lfp(recording_sample, sim_label) #f"{sim_label} with RP={research_param}"
 
     if showEventLFP:
         for idx in sample_event_idxs:
             plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
             plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
 
-    plot_peak_frequencies(spectrum_peaks_parameter, sim_time)
-    plot_power_spectral_density_bands(band_spectra_parameter, sim_time)
+    plot_peak_frequencies(spectrum_peaks_parameter, parameters["runtime"])
+    plot_power_spectral_density_bands(band_spectra_parameter, parameters["runtime"])
 
 
 if __name__ == '__main__':
 
-    filename = "results_2024-08-02 15-39-18.658170/LFP_CA3_e1.txt"
-    single_file_analysis(filename, 1, 1)
+    foldername = "results_2024-08-02_21.48.01/results_[0]"
 
+    single_file_analysis(foldername, 0, 0)

@@ -215,7 +215,7 @@ def start():
     if os.name == 'nt':
         path=os.path.join(ntpath.dirname(os.path.abspath(__file__)),"results_"+timestamp)
     else :
-        path="./results_"+timestamp
+        path="./results_"+timestamp #TODO!!!
 
 
     os.mkdir(path)
