@@ -608,10 +608,10 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     A1 = 1  # Amplitude
     A2 = 1  # Amplitude
     f1 = 2  # Frequency
-    f2 = 1  # Frequency
+    f2 = 3  # Frequency
     t0 = 0.250  # Start time
 
-    wave_realization_in = 3
+    wave_realization_in = 9
     noise_scaling_factor = 3
     # Assign research parameter
     if stim == "sleep":
