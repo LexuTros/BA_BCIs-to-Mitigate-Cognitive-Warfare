@@ -16,14 +16,14 @@ from model_files.single_process import *
 from model_files.annex_functions import *
 from model_files.set_vars_and_process import *
 
+import time
+import ntpath
+from itertools import *
+
 
 os.environ['MKL_NUM_THREADS'] = '1'
 os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['MKL_DYNAMIC'] = 'FALSE'
-
-import time
-import ntpath
-from itertools import *
 
 
 timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
@@ -46,11 +46,11 @@ liste_topo_type=['normal'] #list of strings ('normal' or 'rectangle'), to choose
 liste_co_type=['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles between hippocampal regions
 liste_co_type2=['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles within hippocampal regions
 
-#sleep-wake parameters
+#sleep-wake parameters (in set_vars_and_process.py related to: duo_gCAN,hasCAN,var_coeff,fco)
 liste_gCAN=[(0.5*usiemens*cmeter**-2,25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
-liste_CAN=['sleep', 'wake'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances
-liste_G_ACh=[3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation
-liste_functional_co=['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity
+liste_CAN=['sleep', 'wake'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances --- 'sleep' = gCAN[0], 'wake' = gCAN[1]
+liste_G_ACh=[3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation --- ONLY APPLIED WHEN functional_co = 'wake'
+liste_functional_co=['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
 
 
 #epilepsy parameters :

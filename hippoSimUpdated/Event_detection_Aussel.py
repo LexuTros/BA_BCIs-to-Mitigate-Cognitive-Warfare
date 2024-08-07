@@ -39,8 +39,8 @@ def event_detection_and_analysis(sig, sigstr, fs):
     begin = 0
     peak = False
 
-    peak_cond = 4 * sig_std
-    boundaries_cond = 2 * sig_std
+    peak_cond = 5 * sig_std
+    boundaries_cond = 4 * sig_std
 
     tmax = 60 * second
 
@@ -77,10 +77,10 @@ def event_detection_and_analysis(sig, sigstr, fs):
     events = []
     filtered_events = []
 
-    N = 3
+    N = 2
     nyq = 0.5 * fs
     low = 30 / nyq
-    high = 300 / nyq
+    high = 250 / nyq
     fs = fs / Hz
     test_ind = 0
 

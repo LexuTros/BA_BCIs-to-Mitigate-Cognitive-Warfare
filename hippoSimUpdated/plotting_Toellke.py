@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from brian2 import *
 import Event_detection_Aussel
+import os
 
 
 def create_list_from_timeSeries(file_path):
@@ -189,7 +190,7 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_file_analysis(folder_path, showLFP, showEventLFP):
+def single_sim_analysis(folder_path, showLFP, showEventLFP):
     parameters = extract_sim_parameters(folder_path)
     sim_type = "S_S"
     sim_label = f"{sim_type}_{parameters['runtime']}"
@@ -247,8 +248,17 @@ def single_file_analysis(folder_path, showLFP, showEventLFP):
     plot_power_spectral_density_bands(band_spectra_parameter, parameters["runtime"])
 
 
+def sim_collection_analysis(collection_folder_path, showLFP, showEventLFP):
+    for subfolder in os.listdir(collection_folder_path):
+        print(f'{subfolder}:\n')
+        single_sim_analysis(f'{collection_folder_path}/{subfolder}', showLFP, showEventLFP)
+        print("\n--------------------------------------------------------------\n\n")
+
+
 if __name__ == '__main__':
 
-    foldername = "results_2024-08-02_21.48.01/results_[0]"
+    foldername = "results_2024-08-02_21.48.01/results_[3]"
 
-    single_file_analysis(foldername, 0, 0)
+    #single_sim_analysis(foldername, 1, 1)
+
+    sim_collection_analysis("results_2024-08-06_14.03.46", 0, 0)

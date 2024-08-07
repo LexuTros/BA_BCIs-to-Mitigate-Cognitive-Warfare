@@ -101,10 +101,10 @@ def set_vars_and_process(simu_params,path,var_importantes):
     all_gains=[[1 for i in range(types[0]+types[1])] for j in range(4)]
     
     if fco=='wake': #wakefulness connectivity
-        all_gains[0][:types[0]]=[1/var_coeff]*types[0]
-        all_gains[1]=[var_coeff]*(types[0]+types[1])
-        all_gains[2][:types[0]]=[1/var_coeff]*types[0]
-        all_gains[3][types[0]:]=[var_coeff]*types[1]
+        all_gains[0][:types[0]]=[1/var_coeff]*types[0] # relevant for synapses in EC
+        all_gains[1]=[var_coeff]*(types[0]+types[1]) # relevant for synapses in DG
+        all_gains[2][:types[0]]=[1/var_coeff]*types[0] # relevant for synapses in CA3
+        all_gains[3][types[0]:]=[var_coeff]*types[1] # relevant for synapses in CA1
 
     start_scope()
     param_importants=str([simu_params[i] for i in var_importantes])

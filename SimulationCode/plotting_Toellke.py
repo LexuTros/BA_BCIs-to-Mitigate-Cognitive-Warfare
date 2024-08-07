@@ -228,6 +228,6 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
 
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/S_S/S_S_45s__RP4__2024-07-31_07.32.47.txt"
+    filename = "Out/Timeseries/S_S/S_S_60s__RP12__2024-08-07_05.34.49.txt"
     single_file_analysis(filename, 1, 1)
 
