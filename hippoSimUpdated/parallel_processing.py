@@ -50,7 +50,7 @@ liste_co_type2=['normal'] #list of strings ('normal' or 'uniform'), to choose be
 liste_gCAN=[(0.5*usiemens*cmeter**-2,25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
 liste_CAN=['sleep', 'wake'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances --- 'sleep' = gCAN[0], 'wake' = gCAN[1]
 liste_G_ACh=[3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation --- ONLY APPLIED WHEN functional_co = 'wake'
-liste_functional_co=['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
+liste_functional_co=['sleep', 'wake']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
 
 
 #epilepsy parameters :
@@ -66,7 +66,7 @@ liste_Ek=[-100*mV]  #list of floats, representing the resting potential of potas
 liste_input_type=['custom'] #list of strings ('custom' or 'square') representing the type of inputs to apply
 
 #for custom inputs only :
-liste_custom_inputs=[('input_data/input_nonepi_sleep_1.txt','input_data/input_nonepi_sleep_2.txt','input_data/input_nonepi_sleep_3.txt',1024*Hz)] #list of tuples of the form ('file_1.txt','file_2.txt','file_3.txt',sampling frequency) containing the path to the files with the input values to be used and their sampling frequency (in Hz)
+liste_custom_inputs=[('input_data/input_nonepi_sleep_1.txt','input_data/input_nonepi_sleep_2.txt','input_data/input_nonepi_sleep_3.txt',1024*Hz), ('input_data/input_nonepi_wake_1.txt','input_data/input_nonepi_wake_2.txt','input_data/input_nonepi_wake_3.txt',1024*Hz)] #list of tuples of the form ('file_1.txt','file_2.txt','file_3.txt',sampling frequency) containing the path to the files with the input values to be used and their sampling frequency (in Hz)
 
 #square current input only : 
 liste_A0=[0] #list of floats, representing the minimum value of the input current (without unit, representing nA)
