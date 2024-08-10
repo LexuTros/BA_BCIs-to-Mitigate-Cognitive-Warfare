@@ -66,7 +66,7 @@ liste_Ek=[-100*mV]  #list of floats, representing the resting potential of potas
 liste_input_type=['custom'] #list of strings ('custom' or 'square') representing the type of inputs to apply
 
 #for custom inputs only :
-liste_custom_inputs=[('input_data/input_nonepi_sleep_1.txt','input_data/input_nonepi_sleep_2.txt','input_data/input_nonepi_sleep_3.txt',1024*Hz), ('input_data/input_nonepi_wake_1.txt','input_data/input_nonepi_wake_2.txt','input_data/input_nonepi_wake_3.txt',1024*Hz)] #list of tuples of the form ('file_1.txt','file_2.txt','file_3.txt',sampling frequency) containing the path to the files with the input values to be used and their sampling frequency (in Hz)
+liste_custom_inputs=[('input_data/input_nonepi_sleep_1.txt','input_data/input_nonepi_sleep_2.txt','input_data/input_nonepi_sleep_3.txt',1024*Hz)] # Waking input: ('input_data/input_nonepi_wake_1.txt','input_data/input_nonepi_wake_2.txt','input_data/input_nonepi_wake_3.txt',1024*Hz)
 
 #square current input only : 
 liste_A0=[0] #list of floats, representing the minimum value of the input current (without unit, representing nA)
@@ -77,7 +77,7 @@ liste_duty_cycle=[0.5] #list of floats, representing the duty cycle of the squar
 
 
 #simulation duration
-liste_runtime=[60*second] #list of floats, representing the duration of the simulation (in second)
+liste_runtime=[60*second, 60*second] #list of floats, representing the duration of the simulation (in second)
 
 #simulation output :
 plot_raster,save_raster,save_neuron_pos,save_syn_mat,save_all_FR=True,False,False,False,False #each boolean indicates if the specified output must be saved for all set of simulations
