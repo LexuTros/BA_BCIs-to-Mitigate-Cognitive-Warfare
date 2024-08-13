@@ -47,10 +47,10 @@ liste_co_type=['normal'] #list of strings ('normal' or 'uniform'), to choose bet
 liste_co_type2=['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles within hippocampal regions
 
 #sleep-wake parameters (in set_vars_and_process.py related to: duo_gCAN,hasCAN,var_coeff,fco)
-liste_gCAN=[(0.5*usiemens*cmeter**-2,25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
+liste_gCAN=[(5*usiemens*cmeter**-2,15*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
 liste_CAN=['sleep', 'wake'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances --- 'sleep' = gCAN[0], 'wake' = gCAN[1]
 liste_G_ACh=[3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation --- ONLY APPLIED WHEN functional_co = 'wake'
-liste_functional_co=['sleep', 'wake']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
+liste_functional_co=['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
 
 
 #epilepsy parameters :
@@ -59,7 +59,6 @@ liste_sclerosis=[0] #list of floats, representing the hippocampal sclerosis (bet
 liste_lesion_region=['all',] #list of strings ('all','EC','DG','CA3','CA1') representing the region(s) to which hippocampal sclerosis applies
 liste_tau_Cl=[0.1*second] #list of floats, representing the removal rate of chloride ions in excitatory cells (in second)
 liste_Ek=[-100*mV]  #list of floats, representing the resting potential of potassium channels in excitatory cells (in volt)
-
 
 
 #Input parameters
@@ -77,7 +76,7 @@ liste_duty_cycle=[0.5] #list of floats, representing the duty cycle of the squar
 
 
 #simulation duration
-liste_runtime=[60*second, 60*second] #list of floats, representing the duration of the simulation (in second)
+liste_runtime=[60*second, 60*second, 60*second, 60*second] #list of floats, representing the duration of the simulation (in second)
 
 #simulation output :
 plot_raster,save_raster,save_neuron_pos,save_syn_mat,save_all_FR=True,False,False,False,False #each boolean indicates if the specified output must be saved for all set of simulations
