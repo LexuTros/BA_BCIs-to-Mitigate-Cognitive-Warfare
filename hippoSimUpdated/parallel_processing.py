@@ -37,7 +37,7 @@ os.mkdir(path)
 
 #Basic network parameters
 liste_Ntypes = [[1, 1]] #list of couples of the form [number of excitatory neuron types, number of inhibitory neuron types], with each number being 1 or 2
-liste_maxN = [10000] #list of integers, representing the number of excitatory neurons in the CA1 region
+liste_maxN = [9000, 8000, 7000, 6000] #list of integers, representing the number of excitatory neurons in the CA1 region
 liste_p_tri = [0.4] #list of floats, representing the synaptic connection probability on the tri-synaptic pathway
 liste_p_mono = [0.3] #list of floats, representing the synaptic connection probability on the mono-synaptic pathway
 liste_g_max_i = [600*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of inhibitory synapses
@@ -50,7 +50,7 @@ liste_co_type2 = ['normal'] #list of strings ('normal' or 'uniform'), to choose 
 liste_gCAN = [(0.5*usiemens*cmeter**-2, 25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
 liste_CAN = ['sleep'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances --- 'sleep' = gCAN[0], 'wake' = gCAN[1]
 liste_G_ACh = [3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation --- ONLY APPLIED WHEN functional_co = 'wake'
-liste_functional_co = ['wake', 'wake', 'wake', 'wake', 'sleep', 'sleep', 'sleep', 'sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
+liste_functional_co = ['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
 
 
 #epilepsy parameters :
@@ -76,7 +76,7 @@ liste_duty_cycle = [0.5] #list of floats, representing the duty cycle of the squ
 
 
 #simulation duration
-liste_runtime = [60*second] #list of floats, representing the duration of the simulation (in second)
+liste_runtime = [60*second, 60*second] #list of floats, representing the duration of the simulation (in second)
 
 #simulation output :
 plot_raster, save_raster, save_neuron_pos, save_syn_mat, save_all_FR = False, False, False, False, False #each boolean indicates if the specified output must be saved for all set of simulations
