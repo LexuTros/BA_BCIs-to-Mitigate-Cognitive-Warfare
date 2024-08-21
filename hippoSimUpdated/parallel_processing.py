@@ -47,10 +47,10 @@ liste_co_type = ['normal'] #list of strings ('normal' or 'uniform'), to choose b
 liste_co_type2 = ['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles within hippocampal regions
 
 #sleep-wake parameters (in set_vars_and_process.py related to: duo_gCAN,hasCAN,var_coeff,fco)
-liste_gCAN = [(5*usiemens*cmeter**-2, 15*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
-liste_CAN = ['sleep', 'sleep', 'sleep', 'sleep', 'wake', 'wake', 'wake', 'wake'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances --- 'sleep' = gCAN[0], 'wake' = gCAN[1]
-liste_G_ACh = [3] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation --- ONLY APPLIED WHEN functional_co = 'wake'
-liste_functional_co = ['sleep']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
+liste_gCAN = [(0.5*usiemens*cmeter**-2, 25*usiemens*cmeter**-2)] #list of couples of the form (sleep CAN channel conductance, wakefulness CAN channel conductance), each value in siemens*meter**-2
+liste_CAN = ['sleep'] #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness CAN channel conductances --- 'sleep' = gCAN[0], 'wake' = gCAN[1]
+liste_G_ACh = [1.5, 2, 2, 2.5] #list of floats, representing the gain applied on some synaptic conductances under cholinergic modulation --- ONLY APPLIED WHEN functional_co = 'wake'
+liste_functional_co = ['wake', 'wake']  #list of strings ('wake' or 'sleep') to choose between sleep and wakefulness functional connectivity --- ONLY decides if G_ACh has effect or not
 
 
 #epilepsy parameters :
