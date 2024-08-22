@@ -79,6 +79,37 @@ def plot_lfp(recordings, sim_label):
     #plt.close()  # Close the plotting window after saving to free up resources
 
 
+def plot_frequency_distribution(frequencies, label):
+    # Define the bins for 20 Hz intervals from 20 Hz to 300 Hz
+    bins = np.arange(20, 251, 10)
+
+    # Count the occurrences of frequencies in each bin
+    counts, _ = np.histogram(frequencies, bins=bins)
+
+    # Create bar positions (the center of each bin)
+    bin_centers = (bins[:-1] + bins[1:]) / 2
+
+    # Create a color array for the bars
+    colors = ['green' if (100 <= center <= 250) else 'grey' for center in bin_centers]
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    plt.bar(bin_centers, counts, width=7.5, color=colors, edgecolor='black')
+
+    # Setting the labels and title
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Peak Frequency Occurrences')
+    plt.title(f'Event Peak Frequencys in: {label}')
+    plt.xticks(bins)  # Set x-ticks to be at the edges of the bins
+    #plt.ylim(0, 5)  # Set y-axis limit from 0 to 5
+
+    # Show grid for better readability
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+
+    # Show the plot
+    plt.show()
+
+
 def plot_peak_frequencies(peak_frequencies, sim_time_str):
     # parameter of form [[sleep_sleep_off], [sleep_sleep_on], [wake_sleep_off], [wake_sleep_on],
     #                           [sleep_wake_off], [sleep_wake_on], [wake_wake_off], [wake_wake_on]]
@@ -190,18 +221,18 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_sim_analysis(folder_path, showLFP, showEventLFP):
-    parameters = extract_sim_parameters(folder_path)
+def single_sim_analysis(file_path, sim_label, showLFP, showEventLFP):
+    #parameters = extract_sim_parameters(file_path)
     sim_type = "S_S"
-    sim_label = f"{sim_type}_{parameters['runtime']}"
+    #sim_label = f"{sim_type}_{parameters['runtime']}"
     research_param = ""
 
-    filename = folder_path + "/LFP.txt"
-
     # extract and analyse data
-    recordings = create_list_from_timeSeries(filename)
-    spectrum_peaks, band_spectra, all_events = Event_detection_Aussel.event_detection_and_analysis(recordings, sim_label, 1024 * Hz)
+    recordings = create_list_from_timeSeries(file_path)
+    spectrum_peaks, band_spectra, all_events, all_swr_data = Event_detection_Aussel.event_detection_and_analysis(recordings, sim_label, 1024 * Hz)
     events, filtered_events = all_events
+
+    #sharp_wave_ripples = Event_detection_Aussel.event_identification_analysis(recordings, sim_label, 1024 * Hz)
 
     # prepare plotting parameters
     # General LFP
@@ -222,7 +253,8 @@ def single_sim_analysis(folder_path, showLFP, showEventLFP):
         if num_events < 4:
             sample_event_idxs = [0]
         else:
-            sample_event_idxs = [num_events // 4, num_events // 2 + num_events // 4]
+            sample_event_idxs = [num_events // 4]
+            #sample_event_idxs = [num_events // 4, num_events // 2 + num_events // 4]
 
     # Spectra analysis
     spectrum_peaks_parameter = [[np.nan, np.nan] for x in range(8)]
@@ -240,25 +272,89 @@ def single_sim_analysis(folder_path, showLFP, showEventLFP):
             plot_lfp(recording_sample, sim_label) #f"{sim_label} with RP={research_param}"
 
     if showEventLFP:
-        for idx in sample_event_idxs:
-            plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
-            plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
+        #for idx in sample_event_idxs:
+            #plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
+            #plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
+        for event in all_swr_data[0][:2]:
+            plot_lfp(event, "Sharp wave ripple")
+        #for x in [x for x in all_events[0] if x not in all_swr_data]:
+        #    plot_lfp(x, "No SWR")
 
-    plot_peak_frequencies(spectrum_peaks_parameter, parameters["runtime"])
-    plot_power_spectral_density_bands(band_spectra_parameter, parameters["runtime"])
+    #plot_frequency_distribution(spectrum_peaks)
+
+    #splot_peak_frequencies(spectrum_peaks_parameter, parameters["runtime"])
+    #plot_power_spectral_density_bands(band_spectra_parameter, parameters["runtime"])
+
+    return spectrum_peaks, all_swr_data
 
 
-def sim_collection_analysis(collection_folder_path, showLFP, showEventLFP):
-    for subfolder in os.listdir(collection_folder_path):
-        print(f'{subfolder}:\n')
-        single_sim_analysis(f'{collection_folder_path}/{subfolder}', showLFP, showEventLFP)
-        print("\n--------------------------------------------------------------\n\n")
+def sim_collection_analysis(collection_folder_path, is_sorted, showLFP, showEventLFP):
+
+    swr_num = []
+    swr_peaks = []
+    swr_dur = []
+    all_peaks = []
+    all_num = []
+
+    folder_name = collection_folder_path.split("/")[-1]
+    print(f'\n___{folder_name}___\n')
+
+    for entity in os.listdir(collection_folder_path):
+        #print(f'{entity}:\n')
+
+        if is_sorted:
+            file_path = f'{collection_folder_path}/{entity}'
+            sim_label = f'{folder_name} = {entity.split("_")[1]}'
+        else:
+            file_path = f'{collection_folder_path}/{entity}/LFP.txt'
+            sim_label = ""
+
+        spectrum_peaks, swr_data = single_sim_analysis(file_path, sim_label, showLFP, showEventLFP)
+        #print("\n--------------------------------------------------------------\n\n")
+        swr_num.append(len(swr_data[0]))
+        swr_peaks.extend(swr_data[1])
+        swr_dur.extend(swr_data[2])
+        all_peaks.extend(spectrum_peaks)
+        all_num.append(len(spectrum_peaks))
+
+    print("Overall data:")
+    print(f"Average Events per minute : {mean(all_num)}")
+    print(f"Average peak frequency : {mean(all_peaks)}")
+
+    print("--------------------------------------------------------------")
+
+    print(f"Average Sharp Wave Ripples per minute : {mean(swr_num)}")
+    print(f"Average Sharp Wave Ripple peak frequency : {mean(swr_peaks)}")
+    print(f"Average Sharp Wave Ripple peak duration : {mean(swr_dur) * 1000} ms")
+
+    if is_sorted:
+        plot_frequency_distribution(all_peaks, folder_name)
+
+
+def full_length_lfp_plot(folder_path):
+    lfp_path = folder_path + "/LFP.txt"
+    recordings = create_list_from_timeSeries(lfp_path)
+
+    recordings_per_second = 1024
+    lfp_frame_length = 10 * recordings_per_second
+    lfp_frames_in_recording = len(recordings) // lfp_frame_length
+
+    for i in range(lfp_frames_in_recording):
+        lfp_frame = recordings[(0+i)*lfp_frame_length : (1+i)*lfp_frame_length]
+        plot_lfp(lfp_frame, f"Frame nr. {i+1}")
+
+
 
 
 if __name__ == '__main__':
 
-    foldername = "results_2024-08-02_21.48.01/results_[3]"
+    sim_collection_analysis("sorted_results/healthy_sleep", 1, 0, 0)
+    sim_collection_analysis("sorted_results/gCAN", 1, 0, 0)
+    sim_collection_analysis("sorted_results/G_ACh", 1, 0, 0)
+    sim_collection_analysis("sorted_results/gCAN-G_ACh", 1, 0, 0)
 
-    #single_sim_analysis(foldername, 1, 1)
+    #single_sim_analysis("sorted_results/healthy_sleep/LFP_08-02_[1].txt", "h-sleep", 0, 1)
 
-    sim_collection_analysis("results_2024-08-06_14.03.46", 0, 0)
+    #sim_collection_analysis("results_2024-08-06_14.03.46", 0, 0)
+
+    #full_length_lfp_plot("results_2024-08-09_19.43.13/results_[0]")
