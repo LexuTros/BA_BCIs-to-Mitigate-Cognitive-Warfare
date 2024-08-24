@@ -55,7 +55,7 @@ liste_functional_co = ['sleep']  #list of strings ('wake' or 'sleep') to choose 
 
 #epilepsy parameters :
 liste_sprouting = [0] #list of floats, representing the mossy fiber sprouting in the DG (between 0 (healthy) and 1)
-liste_sclerosis = [0.2, 0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.5] #list of floats, representing the hippocampal sclerosis (between 0 (healthy) and 1)
+liste_sclerosis = [0.1, 0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3] #list of floats, representing the hippocampal sclerosis (between 0 (healthy) and 1)
 liste_lesion_region = ['all',] #list of strings ('all','EC','DG','CA3','CA1') representing the region(s) to which hippocampal sclerosis applies
 liste_tau_Cl = [0.1*second] #list of floats, representing the removal rate of chloride ions in excitatory cells (in second)
 liste_Ek = [-100*mV]  #list of floats, representing the resting potential of potassium channels in excitatory cells (in volt)
