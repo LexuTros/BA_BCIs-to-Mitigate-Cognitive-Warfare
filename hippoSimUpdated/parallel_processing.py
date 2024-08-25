@@ -41,7 +41,7 @@ liste_maxN = [10000] #list of integers, representing the number of excitatory ne
 liste_p_tri = [0.4] #list of floats, representing the synaptic connection probability on the tri-synaptic pathway
 liste_p_mono = [0.3] #list of floats, representing the synaptic connection probability on the mono-synaptic pathway
 liste_g_max_i = [600*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of inhibitory synapses
-liste_g_max_e = [60*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of excitatory synapses
+liste_g_max_e = [48*psiemens, 48*psiemens, 48*psiemens, 48*psiemens, 48*psiemens, 48*psiemens, 48*psiemens, 48*psiemens, 54*psiemens, 54*psiemens, 54*psiemens, 54*psiemens, 54*psiemens, 54*psiemens, 54*psiemens, 54*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of excitatory synapses
 liste_topo_type = ['normal'] #list of strings ('normal' or 'rectangle'), to choose between realistic and rectangular topology of the network
 liste_co_type = ['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles between hippocampal regions
 liste_co_type2 = ['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles within hippocampal regions
@@ -55,7 +55,7 @@ liste_functional_co = ['sleep']  #list of strings ('wake' or 'sleep') to choose 
 
 #epilepsy parameters :
 liste_sprouting = [0] #list of floats, representing the mossy fiber sprouting in the DG (between 0 (healthy) and 1)
-liste_sclerosis = [0.1, 0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3] #list of floats, representing the hippocampal sclerosis (between 0 (healthy) and 1)
+liste_sclerosis = [0] #list of floats, representing the hippocampal sclerosis (between 0 (healthy) and 1)
 liste_lesion_region = ['all',] #list of strings ('all','EC','DG','CA3','CA1') representing the region(s) to which hippocampal sclerosis applies
 liste_tau_Cl = [0.1*second] #list of floats, representing the removal rate of chloride ions in excitatory cells (in second)
 liste_Ek = [-100*mV]  #list of floats, representing the resting potential of potassium channels in excitatory cells (in volt)
