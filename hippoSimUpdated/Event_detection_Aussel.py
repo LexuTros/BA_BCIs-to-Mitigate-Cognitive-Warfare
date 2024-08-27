@@ -28,22 +28,25 @@ def band_filter(N, unfiltered_signal, low, high):
 def frequency_band_analysis(N, low, high, event, fs):
 
     try:
-        y = band_filter(N, event, low, high)
-        f, Pxx_spec = signal.periodogram(y, fs, 'flattop', scaling='spectrum')
+        filtered_sig = band_filter(N, event, low, high)
+        frequencies, power_spectrum = signal.periodogram(filtered_sig, fs / Hz, 'flattop', scaling='spectrum')
 
-        return f, Pxx_spec, y
+        return frequencies, power_spectrum, filtered_sig
     except:
         return [], [], []
 
 
-def event_detection_and_analysis(sig, sigstr, fs):
-    record_dt = 1 / fs
+def event_detection_and_analysis(sig):
+    sample_frequency = 1024 * Hz
+    record_dt = 1 / sample_frequency
+
     start_plot_time = 50 * msecond
     start_ind = int(start_plot_time / record_dt)
     sig_rms = window_rms(sig[start_ind:] - mean(sig[start_ind:]), int(10 * ms / record_dt))
     sig_std = std(sig_rms)
 
-    #detection des events
+
+    # detection of sharp waves
     all_begin = []
     all_end = []
     begin = 0
@@ -52,50 +55,39 @@ def event_detection_and_analysis(sig, sigstr, fs):
     peak_cond = 4.5 * sig_std
     boundaries_cond = 3 * sig_std
 
-    tmax = 60 * second
-
     for ind in range(len(sig_rms)):
-        t = ind * record_dt
-        if t > tmax:
-            break
         rms = sig_rms[ind]
         if rms > boundaries_cond and begin == 0:
             begin = ind
-        if rms > peak_cond and peak == False:
-            #elif rms>3*sig_std and peak==False:
+        if rms > peak_cond and not peak:
             peak = True
-        #elif rms<0.2*sig_std and peak:    
         elif rms < boundaries_cond and peak:
             all_begin.append(begin)
             all_end.append(ind)
             begin = 0
-            end = 0
             peak = False
         elif rms < boundaries_cond and not peak:
             begin = 0
-            end = 0
             peak = False
 
-    all_duration = []
-    all_spectrum = []
-    all_spectrum_peak = []
+
+    events = []
+    filtered_events = []
+    all_durations = []
+    all_spectrum_peaks = []
+
+    sharp_wave_ripples = []
+    sharp_wave_ripple_peaks = []
+    sharp_wave_ripple_durations = []
 
     theta_spectrum = []
     gamma_spectrum = []
     ripple_spectrum = []
 
-    events = []
-    filtered_events = []
-    sharp_wave_ripples = []
-    sharp_wave_ripple_peaks = []
-    sharp_wave_ripple_durations = []
-
     N = 2
-    nyq = 0.5 * fs
+    nyq = 0.5 * sample_frequency
     low = 30 / nyq
     high = 400 / nyq
-    fs = fs / Hz
-    test_ind = 0
 
     num_events = len(all_begin)
 
@@ -106,63 +98,59 @@ def event_detection_and_analysis(sig, sigstr, fs):
         duration = len(event) * record_dt
 
         # Original/general analysis
-        f, Pxx_spec, filtered_event = frequency_band_analysis(N, low, high, event, fs)
-        if len(f) != 0 and len(Pxx_spec) != 0:
+        frequencies, power_spectrum, filtered_event = frequency_band_analysis(N, low, high, event, sample_frequency)
+        if len(frequencies) != 0 and len(power_spectrum) != 0:
             events.append(event)
             filtered_events.append(filtered_event)
-            all_duration.append(duration)
-            all_spectrum.append(Pxx_spec)
+            all_durations.append(duration)
+            peak_frequency = frequencies[argmax(power_spectrum)]
+            all_spectrum_peaks.append(peak_frequency)
 
-            peak_frequency = f[argmax(Pxx_spec)]
-            all_spectrum_peak.append(peak_frequency)
             if 100 <= peak_frequency <= 250:
                 sharp_wave_ripples.append(event)
                 sharp_wave_ripple_peaks.append(peak_frequency)
                 sharp_wave_ripple_durations.append(duration)
 
-            test_ind += 1
-
         # Band specific analysis
-        # theta_spectrum.extend(frequency_band_analysis(N, 5/nyq, 10/nyq, event, fs)[1])
-        # gamma_spectrum.extend(frequency_band_analysis(N, 30/nyq, 100/nyq, event, fs)[1])
-        # ripple_spectrum.extend(frequency_band_analysis(N, 120/nyq, 200/nyq, event, fs)[1])
+        theta_spectrum.extend(frequency_band_analysis(N, 5/nyq, 10/nyq, event, sample_frequency)[1])
+        gamma_spectrum.extend(frequency_band_analysis(N, 30/nyq, 100/nyq, event, sample_frequency)[1])
+        ripple_spectrum.extend(frequency_band_analysis(N, 100/nyq, 250/nyq, event, sample_frequency)[1])
 
 
+    all_event_data = [events, filtered_events, all_spectrum_peaks, all_durations]
+    swr_data = [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations]
     band_spectra = [theta_spectrum, gamma_spectrum, ripple_spectrum]
-    all_events = [events, filtered_events]
-    all_swr_data = [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations]
-    non_swr_peaks = [x for x in all_spectrum_peak if x not in sharp_wave_ripple_peaks]
 
-    # print('Analysis of the simulation ' + sigstr + ' :')
-    # print("Number of studied events : " + str(test_ind))
-    #
-    # mean_peak = mean(all_spectrum_peak)
-    # print('Mean peak frequency of the events = ' + str(mean_peak) + ' Hz')
-    # std_peak = std(all_spectrum_peak)
-    # print('Standard deviation of the peak frequency of the events = ' + str(std_peak) + ' Hz')
-    # min_peak = min(all_spectrum_peak)
-    # print('Minimum peak frequency of the events = ' + str(min_peak) + ' Hz')
-    # max_peak = max(all_spectrum_peak)
-    # print('Maximum peak frequency of the events = ' + str(max_peak) + ' Hz')
-    # print(' ')
-    #
-    # mean_dur = mean(all_duration)
-    # print('Mean duration of the events = ' + str(mean_dur * 1000) + ' ms')
-    # min_dur = min(all_duration)
-    # print('Minimum duration of the events = ' + str(min_dur))
-    # max_dur = max(all_duration)
-    # print('Maximum duration of the events = ' + str(max_dur))
-    # print(' ')
-    #
-    # print("Sharp Wave Ripples")
-    # print("Number : " + str(len(sharp_wave_ripples)))
-    # print('Mean peak frequency = ' + str(mean(sharp_wave_ripple_peaks)) + ' Hz')
-    # print('Mean duration = ' + str(mean(sharp_wave_ripple_durations) * 1000) + ' ms')
-    # print(" ")
-    #
-    # print(non_swr_peaks)
+    return all_event_data, swr_data, band_spectra
 
-    return all_spectrum_peak, band_spectra, all_events, all_swr_data
+
+# print('Analysis of the simulation ' + sigstr + ' :')
+# print("Number of studied events : " + str(test_ind))
+#
+# mean_peak = mean(all_spectrum_peak)
+# print('Mean peak frequency of the events = ' + str(mean_peak) + ' Hz')
+# std_peak = std(all_spectrum_peak)
+# print('Standard deviation of the peak frequency of the events = ' + str(std_peak) + ' Hz')
+# min_peak = min(all_spectrum_peak)
+# print('Minimum peak frequency of the events = ' + str(min_peak) + ' Hz')
+# max_peak = max(all_spectrum_peak)
+# print('Maximum peak frequency of the events = ' + str(max_peak) + ' Hz')
+# print(' ')
+#
+# mean_dur = mean(all_duration)
+# print('Mean duration of the events = ' + str(mean_dur * 1000) + ' ms')
+# min_dur = min(all_duration)
+# print('Minimum duration of the events = ' + str(min_dur))
+# max_dur = max(all_duration)
+# print('Maximum duration of the events = ' + str(max_dur))
+# print(' ')
+#
+# print("Sharp Wave Ripples")
+# print("Number : " + str(len(sharp_wave_ripples)))
+# print('Mean peak frequency = ' + str(mean(sharp_wave_ripple_peaks)) + ' Hz')
+# print('Mean duration = ' + str(mean(sharp_wave_ripple_durations) * 1000) + ' ms')
+# print(" ")
+#
 
 
 def event_identification_analysis(sig, sigstr, fs):

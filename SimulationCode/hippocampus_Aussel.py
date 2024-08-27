@@ -14,6 +14,7 @@ from brian2 import *
 from topology_Aussel import topology
 from Event_detection_Aussel import event_detection_and_analysis
 from plotting_Toellke import *
+from thesis_code_Toellke import *
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib.pyplot import *
@@ -597,76 +598,24 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
 #    del m              
 #    preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3)
     #print('Adding the inputs')
-
-
-#Synthetically generated input records, based on proposition of additional paper:
-    # Simulation parameters
-    duration = sim_time
-    #record_dt = 1. / 1024 * second  # Sampling interval for TimedArray
-
-    # Parameters for square wave
-    A1 = 1  # Amplitude
-    A2 = 1  # Amplitude
-    f1 = 2  # Frequency
-    f2 = 2  # Frequency
-    t0 = 0.250  # Start time
-
-    wave_realization_in = 6
-    noise_scaling_factor = 3
-    # Assign research parameter
-    if stim == "sleep":
-        wave_realization_in = research_value
-    else:
-        noise_scaling_factor = research_value
-
-    # Time array
-    times = np.arange(0 * second, duration, record_dt)
-
-    # Generate square wave
-    Istim_values_wake = np.zeros_like(times)
-    Istim_values_sleep = np.zeros_like(times)
-
-    def is_in_correct_cycle(input_frequency, current_time, wave_realization_interval):
-        ms_per_cycle = 1 / input_frequency
-        wave_number = int((current_time - t0) / ms_per_cycle) + wave_realization_interval # adding interval enusres input starts at t0
-        return wave_number % wave_realization_interval == 0
-
-    for i, tim in enumerate(times):
-        if tim >= t0 and np.sin(2 * np.pi * f1 * (tim - t0)) >= 0:
-            Istim_values_wake[i] = A1 * np.sin(2 * np.pi * f1 * (tim - t0))
-        if tim >= t0 and np.sin(2 * np.pi * f2 * (tim - t0)) >= 0:
-            if is_in_correct_cycle(f2, tim, wave_realization_in):
-                Istim_values_sleep[i] = A2
-
-
-    # Normalize values to range [0, 1]
-    Istim_normalized_wake = (Istim_values_wake - min(Istim_values_wake)) / (max(Istim_values_wake) - min(Istim_values_wake))
-    Istim_normalized_sleep = (Istim_values_sleep - min(Istim_values_sleep)) / (max(Istim_values_sleep) - min(Istim_values_sleep))
-
-    # Add variability: scale down by 5/6 and add random noise up to 1/6 of max value
-    Istim_noisy_wake = (6-noise_scaling_factor) / 6 * Istim_normalized_wake + (noise_scaling_factor / 6) * np.random.rand(len(Istim_normalized_wake))
-    Istim_noisy_sleep = 5 / 6 * Istim_normalized_sleep + (1 / 6) * np.random.rand(len(Istim_normalized_sleep))
-
-    # Scale to a maximum of 200 Hz (based on previous scaling)
-    max_rate = 200 * Hz
-    Istim_scaled_wake = Istim_noisy_wake * max_rate
-    Istim_scaled_sleep = Istim_noisy_sleep * max_rate
-
-    # Create TimedArray from scaled data
-    Istim_timed_wake = TimedArray(Istim_scaled_wake, dt=record_dt)
-    Istim_timed_sleep = TimedArray(Istim_scaled_sleep, dt=record_dt)
-
     
-    #ajout des inputs
+    #apply inputs
     if stim=='sleep':
-        inputs1=Istim_timed_sleep
-        inputs2=Istim_timed_sleep
-        inputs3=Istim_timed_sleep
-    else :
-        inputs1=Istim_timed_wake
-        inputs2=Istim_timed_wake
-        inputs3=Istim_timed_wake
-    
+        input_frequencies = generate_input(1, 2, 6, 1, sim_time)
+    else:
+        input_frequencies = generate_input(1, 2, 1, 3, sim_time)
+
+    inputs1=input_frequencies
+    inputs2=input_frequencies
+    inputs3=input_frequencies
+
+
+
+
+
+
+
+
 
     In_exc1=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs1(t)*tstep', dt=record_dt)    #dt ? record_dt ?
     S11 = Synapses(In_exc1, EC_py_CAN, on_pre='he_post+=g_max_e')
