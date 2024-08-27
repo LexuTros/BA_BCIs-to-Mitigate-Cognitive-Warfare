@@ -185,12 +185,12 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
     # General LFP
     lfp_recording_samples = []
 
-    if len(recordings) < 6144:
+    if len(recordings) >= 30720:
+        lfp_recording_samples.append(recordings[20480:30721]) # 10s recording, starting at 20s
+    elif len(recordings) < 6144:
         lfp_recording_samples.append(recordings) # if shorter than 6s, plot all
     else:
         lfp_recording_samples.append(recordings[1024:6144]) # 5s recording, starting at 1s
-    if len(recordings) > 51200:
-        lfp_recording_samples.append(recordings[40960:51201]) # 10s recording, starting at 40s
 
     # Event LFPs
     sample_event_idxs = []
@@ -215,19 +215,27 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
     # generate plots
     if showLFP:
         for recording_sample in lfp_recording_samples:
-            plot_lfp(recording_sample, f"{sim_label} with RP={research_param}")
+            plot_lfp(recording_sample, f"{research_param}")
 
     if showEventLFP:
         for idx in sample_event_idxs:
             plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
             plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
 
-    plot_peak_frequencies(spectrum_peaks_parameter, sim_time)
+    #plot_peak_frequencies(spectrum_peaks_parameter, sim_time)
     plot_power_spectral_density_bands(band_spectra_parameter, sim_time)
+
+    print("\n")
 
 
 if __name__ == '__main__':
 
-    filename = "Out/Timeseries/S_S/S_S_60s__RP12__2024-08-07_05.34.49.txt"
-    single_file_analysis(filename, 1, 1)
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-07_05.07.50.txt", 0, 0)
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP9__2024-08-07_05.38.16.txt", 0, 0)
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP12__2024-08-07_05.34.49.txt", 0, 0)
+
+    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-08_12.28.19.txt", 1, 0)
+    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-08_10.55.23.txt", 1, 0)
+    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP8__2024-08-08_11.26.48.txt", 1, 0)
+
 
