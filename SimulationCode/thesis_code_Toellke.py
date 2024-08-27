@@ -36,9 +36,8 @@ def generate_input(A1, f1, wave_realization_interval, noise_scaling_factor, sim_
         return wave_number % wave_realization_int == 0
 
     for i, t in enumerate(times):
-        if t >= t0 and np.sin(2 * np.pi * f1 * (t - t0)) >= 0:
-            if is_in_correct_cycle(f1, t, wave_realization_interval):
-                input_values[i] = A1
+        if t >= t0 and np.sin(2 * np.pi * f1 * (t - t0)) >= 0 and is_in_correct_cycle(f1, t, wave_realization_interval):
+            input_values[i] = A1
 
 
     # Normalize values to range [0, 1]

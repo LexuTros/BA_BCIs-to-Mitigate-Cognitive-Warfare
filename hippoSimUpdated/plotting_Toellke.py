@@ -111,7 +111,7 @@ def plot_frequency_distribution(frequencies, label):
     # Setting the labels and title
     plt.xlabel('Frequency (Hz)')
     plt.ylabel('Peak Frequency Occurrences')
-    plt.title(f'Event Peak Frequencys in: {label}')
+    plt.title(f'Event Peak Frequencies in: {label}')
     plt.xticks(bins)  # Set x-ticks to be at the edges of the bins
     #plt.ylim(0, 5)  # Set y-axis limit from 0 to 5
 
@@ -123,13 +123,7 @@ def plot_frequency_distribution(frequencies, label):
 
 
 def plot_peak_frequencies(peak_frequencies, parameter_label):
-    # parameter of form [[sleep_sleep_off], [sleep_sleep_on], [wake_sleep_off], [wake_sleep_on],
-    #                           [sleep_wake_off], [sleep_wake_on], [wake_wake_off], [wake_wake_on]]
-
-    # Prepare data
-    # categories = ['input:    \nconnectivity:    \nCAN current:    ', 'sleep\nsleep\noff', 'sleep\nsleep\non',
-    #               'wake\nsleep\noff', 'wake\nsleep\non', 'sleep\nwake\noff',
-    #               'sleep\nwake\non', 'wake\nwake\noff', 'wake\nwake\non']
+    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
 
     categories = [x[0] for x in peak_frequencies]
     means = [np.mean(x[1]) for x in peak_frequencies]
@@ -161,27 +155,19 @@ def plot_peak_frequencies(peak_frequencies, parameter_label):
     #plt.savefig('Out/Events/eventParameters_after_' + str(int(runtime)) + 's__' + timestamp + '.png')
 
 
-def plot_power_spectral_density_bands(psd_bands, sim_time_str):
-    # parameter of form [[sleep_sleep_off], [sleep_sleep_on], [wake_sleep_off], [wake_sleep_on],
-    #                           [sleep_wake_off], [sleep_wake_on], [wake_wake_off], [wake_wake_on]]
-    #       with [sleep_sleep_off] = [[theta_band], [gamma_band], [ripple_band]]
+def plot_power_spectral_density_bands(psd_bands, label):
+    #psd_bands of from: [(parameter_value, [[theta_band], [gamma_band], [ripple_band]]), ...]
 
-    categories = ['input:    \nconnectivity:    \nCAN current:    ', 'sleep\nsleep\noff',
-                  'sleep\nsleep\non', 'wake\nsleep\noff', 'wake\nsleep\non', 'sleep\nwake\noff',
-                  'sleep\nwake\non', 'wake\nwake\noff', 'wake\nwake\non']
-
-    emptyLabelInput = [[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]]
-    psd_bands.insert(0, emptyLabelInput)
-
+    categories = [x[0] for x in psd_bands]
     # Extract means and standard deviations for Theta (0), Gamma (1), Ripple (2) bands
-    theta_means = [np.mean(x[0]) for x in psd_bands]
-    theta_stds = [np.std(x[0]) for x in psd_bands]
+    theta_means = [np.mean(x[1][0]) for x in psd_bands]
+    theta_stds = [np.std(x[1][0]) for x in psd_bands]
 
-    gamma_means = [np.mean(x[1]) for x in psd_bands]
-    gamma_stds = [np.std(x[1]) for x in psd_bands]
+    gamma_means = [np.mean(x[1][1]) for x in psd_bands]
+    gamma_stds = [np.std(x[1][1]) for x in psd_bands]
 
-    ripple_means = [np.mean(x[2]) for x in psd_bands]
-    ripple_stds = [np.std(x[2]) for x in psd_bands]
+    ripple_means = [np.mean(x[1][2]) for x in psd_bands]
+    ripple_stds = [np.std(x[1][2]) for x in psd_bands]
 
     # Number of groups
     n_groups = len(categories)
@@ -206,10 +192,10 @@ def plot_power_spectral_density_bands(psd_bands, sim_time_str):
 
     # Axis labels etc.
     ax.set_ylabel('Power (V^2)')
-    ax.set_title(f'Power in oscillation bands - {sim_time_str} simulation')
+    ax.set_title(f'Power in oscillation bands: {label}')
+    ax.set_xlabel(f"{label}")
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
-    ax.set_xlim(left=0)  # Set the left boundary of the x-axis slightly less than the index of the first category
     ax.legend()
 
     # Set Y-axis to log scale to match the original plot scale
@@ -232,68 +218,40 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_sim_analysis(file_path, sim_label, showLFP, showEventLFP):
-    #parameters = extract_sim_parameters(file_path)
-    sim_type = "S_S"
-    research_param = ""
+def single_sim_analysis(file_path, showLFP, showEventLFP):
+    sim_label, research_param = file_path.split("/")[-3:-1]
 
     # extract and analyse data
     recordings = create_list_from_timeSeries(file_path)
-    spectrum_peaks, band_spectra, all_events, all_swr_data = event_detection_and_analysis(recordings)
-    events, filtered_events = all_events
+    [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection_and_analysis(recordings)
 
     #sharp_wave_ripples = Event_detection_Aussel.event_identification_analysis(recordings, sim_label, 1024 * Hz)
 
     # prepare plotting parameters
     # General LFP
-    lfp_recording_samples = []
 
-    if len(recordings) < 6144:
-        lfp_recording_samples.append(recordings) # if shorter than 6s, plot all
+    if len(recordings) > 40960:
+        lfp_recording_sample = recordings[30720:40961]  # 10s recording, starting at 30s
+    elif len(recordings) < 6144:
+        lfp_recording_sample = recordings  # if shorter than 6s, plot all
     else:
-        lfp_recording_samples.append(recordings[1024:6144]) # 5s recording, starting at 1s
-    if len(recordings) > 51200:
-        lfp_recording_samples.append(recordings[40960:51201]) # 10s recording, starting at 40s
+        lfp_recording_sample = recordings[1024:6144]  # 5s recording, starting at 1s
 
-    # Event LFPs
-    sample_event_idxs = []
-
-    num_events = len(events)
-    if num_events:
-        if num_events < 4:
-            sample_event_idxs = [0]
-        else:
-            sample_event_idxs = [num_events // 4]
-            #sample_event_idxs = [num_events // 4, num_events // 2 + num_events // 4]
-
-    # Spectra analysis
-    spectrum_peaks_parameter = [[np.nan, np.nan] for x in range(8)]
-    band_spectra_parameter = [[[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]] for x in range(8)]
-
-    plotting_parameter_order = ['S_S', 'S_S_CAN', 'W_S', 'W_S_CAN', 'S_W_noCAN', 'S_W', 'W_W_noCAN', 'W_W',]
-    sim_type_idx = plotting_parameter_order.index(sim_type)
-
-    spectrum_peaks_parameter[sim_type_idx] = spectrum_peaks
-    band_spectra_parameter[sim_type_idx] = band_spectra
 
     # generate plots
     if showLFP:
-        for recording_sample in lfp_recording_samples:
-            plot_lfp(recording_sample, sim_label) #f"{sim_label} with RP={research_param}"
+        plot_lfp(lfp_recording_sample, f"{sim_label} = {research_param}")
 
     if showEventLFP:
-        #for idx in sample_event_idxs:
-            #plot_lfp(events[idx], f"Event {str(idx)} in {sim_label} - raw")
-            #plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
-        for event in all_swr_data[0][:2]:
+        for event in sharp_wave_ripples[:2]:
             plot_lfp(event, "Sharp wave ripple")
-        #for x in [x for x in all_events[0] if x not in all_swr_data]:
-        #    plot_lfp(x, "No SWR")
+        for x in [x for x in events if x not in sharp_wave_ripples][:2]:
+            plot_lfp(x, "No SWR")
 
-    #splot_peak_frequencies(spectrum_peaks_parameter, parameters["runtime"])
-    #plot_power_spectral_density_bands(band_spectra_parameter, parameters["runtime"])
+    plot_frequency_distribution(all_spectrum_peaks, sim_label)
+    plot_peak_frequencies([(research_param, all_spectrum_peaks),], sim_label)
+    plot_power_spectral_density_bands([(research_param, band_spectra),], sim_label)
 
-    return spectrum_peaks, all_swr_data
 
 
 def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
@@ -315,7 +273,7 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
 
         file_path = f'{collection_folder_path}/{entity}'
         recordings = create_list_from_timeSeries(file_path)
-        [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], [theta_spectrum, gamma_spectrum, ripple_spectrum] = event_detection_and_analysis(recordings)
+        [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection_and_analysis(recordings)
 
         all_num.append(len(events))
         all_peaks.extend(all_spectrum_peaks)
@@ -372,7 +330,7 @@ if __name__ == '__main__':
     doPlots = 1
     reversed_analysis = 1
 
-    parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
+    #parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
 
     # sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/1.5", doChat, doPlots)
@@ -381,5 +339,4 @@ if __name__ == '__main__':
     # sim_collection_analysis("sorted_results/sleep/G_ACh/3", doChat, doPlots)
 
 
-
-    #single_sim_analysis("sorted_results/healthy_sleep/LFP_08-02_[1].txt", "h-sleep", 0, 1)
+    single_sim_analysis("sorted_results/sleep/gCAN/25/LFP_08-06_[1].txt", 0, 0)
