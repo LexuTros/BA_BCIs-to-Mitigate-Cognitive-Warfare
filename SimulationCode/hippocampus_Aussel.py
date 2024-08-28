@@ -510,110 +510,112 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
         co='sleep'
     else :
         co='wake'
-    
 
-    # Original Inputs:
-#     input_S_1=read_file('input_files/input_sleep_B12_B11_480_'+str(input_num)+'.txt')
-#     input_S_2=read_file('input_files/input_sleep_O9_O8_480_'+str(input_num)+'.txt')
-#     input_S_3=read_file('input_files/input_sleep_P7_P6_480_'+str(input_num)+'.txt')
-#
-#     input_W_1=read_file('input_files/input_wake_B12_B11_480_'+str(input_num)+'.txt')
-#     input_W_2=read_file('input_files/input_wake_O9_O8_480_'+str(input_num)+'.txt')
-#     input_W_3=read_file('input_files/input_wake_P7_P6_480_'+str(input_num)+'.txt')
-#
-#     N=2
-#     Fc=40
-#     fs=1024
-#     nyq = 0.5 * fs
-#     low = 3 / nyq
-#     high=50/nyq
-#     b, a = scipy.signal.butter(N, high, btype='low')
-#
-#     record_dt=1./1024 *second
-#     #[120000:]
-#
-#     debut=(int(ver)-1)*60000
-#     fin=int(ver)*60000
-#     print(debut,fin)
-#     inputs_filt_S_1=scipy.signal.filtfilt(b,a,input_S_1[debut:fin])
-#     inputs_filt_S_2=scipy.signal.filtfilt(b,a,input_S_2[debut:fin])
-#     inputs_filt_S_3=scipy.signal.filtfilt(b,a,input_S_3[debut:fin])
-#
-#     inputs_envelope_S_1=abs(inputs_filt_S_1)
-#     inputs_envelope_S_2=abs(inputs_filt_S_2)
-#     inputs_envelope_S_3=abs(inputs_filt_S_3)
-#
-#     inputs_envelope_S_1=5/6*inputs_envelope_S_1+max(inputs_envelope_S_1)/6*rand(len(inputs_envelope_S_1))
-#     inputs_envelope_S_2=5/6*inputs_envelope_S_2+max(inputs_envelope_S_2)/6*rand(len(inputs_envelope_S_2))
-#     inputs_envelope_S_3=5/6*inputs_envelope_S_3+max(inputs_envelope_S_3)/6*rand(len(inputs_envelope_S_3))
-#
-#     MMM=max((max(inputs_envelope_S_1),max(inputs_envelope_S_2),max(inputs_envelope_S_3)))
-# #    print(MMM)
-#     inputs_envelope_S_1=200*inputs_envelope_S_1/MMM
-#     inputs_envelope_S_2=200*inputs_envelope_S_2/MMM
-#     inputs_envelope_S_3=200*inputs_envelope_S_3/MMM
-#
-#
-#     input_S_1=TimedArray(inputs_envelope_S_1*Hz,dt=record_dt)
-#     input_S_2=TimedArray(inputs_envelope_S_2*Hz,dt=record_dt)
-#     input_S_3=TimedArray(inputs_envelope_S_3*Hz,dt=record_dt)
-#
-#     print(inputs_envelope_S_1)
-    
-#    figure()
-#    plot(inputs_envelope_S_1)
-#    plot(inputs_envelope_S_2)
-#    plot(inputs_envelope_S_3)
+    # Create Input Arrays
+    use_eeg_files = True
 
-#    bruit=0.8*mean(array([max(inputs_envelope_S_1),max(inputs_envelope_S_2),max(inputs_envelope_S_3)]))*Hz*(rand(int(runtime/record_dt)))
-#    print(bruit)
-#    #inputs_bruit=TimedArray(max(max(input_S_1),max(input_S_2),max(input_S_3))*rand(int(runtime/record_dt)),dt=record_dt)
-#    input_bruit=TimedArray(bruit,dt=record_dt)
-      
-    # inputs_filt_W_1=scipy.signal.filtfilt(b,a,input_W_1[debut:fin])
-    # inputs_envelope_W_1=abs(inputs_filt_W_1)
-    #
-    # inputs_filt_W_2=scipy.signal.filtfilt(b,a,input_W_2[debut:fin])
-    # inputs_envelope_W_2=abs(inputs_filt_W_2)
-    #
-    # inputs_filt_W_3=scipy.signal.filtfilt(b,a,input_W_3[debut:fin])
-    # inputs_envelope_W_3=abs(inputs_filt_W_3)
-    #
-    # MMM=max((max(inputs_envelope_W_1),max(inputs_envelope_W_2),max(inputs_envelope_W_3)))
-    # inputs_envelope_W_1=200*inputs_envelope_W_1/MMM
-    # inputs_envelope_W_2=200*inputs_envelope_W_2/MMM
-    # inputs_envelope_W_3=200*inputs_envelope_W_3/MMM
-    #
-    # input_W_1=TimedArray(inputs_envelope_W_1*Hz,dt=record_dt)
-    # input_W_2=TimedArray(inputs_envelope_W_2*Hz,dt=record_dt)
-    # input_W_3=TimedArray(inputs_envelope_W_3*Hz,dt=record_dt)
-    
-#    sum_S=inputs_envelope_S_1+inputs_envelope_S_2+inputs_envelope_S_3
-#    sum_ve=inputs_envelope_ve_1+inputs_envelope_ve_2+inputs_envelope_ve_3
-    
-#    print('Preparation du réseau')    
-#    n,i,m=0,0,0
-#    del n
-#    del i  
-#    del m              
-#    preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3)
-    #print('Adding the inputs')
-    
-    #apply inputs
-    if stim=='sleep':
-        input_frequencies = generate_input(1, 1.5, 4, 1, sim_time)
+    if use_eeg_files:
+        # Original Inputs:
+        N=2
+        Fc=40
+        fs=1024
+        nyq = 0.5 * fs
+        low = 3 / nyq
+        high=50/nyq
+        b, a = scipy.signal.butter(N, high, btype='low')
+
+        record_dt=1./1024 *second
+        #[120000:]
+
+        debut=(int(ver)-1)*60000
+        fin=int(ver)*60000
+        print(debut,fin)
+
+        if stim == 'sleep':
+            input_S_1=read_file('input_data/input_nonepi_sleep_1.txt')
+            input_S_2=read_file('input_data/input_nonepi_sleep_2.txt')
+            input_S_3=read_file('input_data/input_nonepi_sleep_3.txt')
+
+
+            inputs_filt_S_1=scipy.signal.filtfilt(b,a,input_S_1[debut:fin])
+            inputs_filt_S_2=scipy.signal.filtfilt(b,a,input_S_2[debut:fin])
+            inputs_filt_S_3=scipy.signal.filtfilt(b,a,input_S_3[debut:fin])
+
+            inputs_envelope_S_1=abs(inputs_filt_S_1)
+            inputs_envelope_S_2=abs(inputs_filt_S_2)
+            inputs_envelope_S_3=abs(inputs_filt_S_3)
+
+            inputs_envelope_S_1=5/6*inputs_envelope_S_1+max(inputs_envelope_S_1)/6*rand(len(inputs_envelope_S_1))
+            inputs_envelope_S_2=5/6*inputs_envelope_S_2+max(inputs_envelope_S_2)/6*rand(len(inputs_envelope_S_2))
+            inputs_envelope_S_3=5/6*inputs_envelope_S_3+max(inputs_envelope_S_3)/6*rand(len(inputs_envelope_S_3))
+
+            MMM=max((max(inputs_envelope_S_1),max(inputs_envelope_S_2),max(inputs_envelope_S_3)))
+        #    print(MMM)
+            inputs_envelope_S_1=200*inputs_envelope_S_1/MMM
+            inputs_envelope_S_2=200*inputs_envelope_S_2/MMM
+            inputs_envelope_S_3=200*inputs_envelope_S_3/MMM
+
+            inputs1 = TimedArray(inputs_envelope_S_1*Hz, dt=record_dt)
+            inputs2 = TimedArray(inputs_envelope_S_2*Hz, dt=record_dt)
+            inputs3 = TimedArray(inputs_envelope_S_3*Hz, dt=record_dt)
+
+            print(inputs_envelope_S_1)
+
+            # figure()
+            # plot(inputs_envelope_S_1)
+            # plot(inputs_envelope_S_2)
+            # plot(inputs_envelope_S_3)
+            #
+            # bruit=0.8*mean(array([max(inputs_envelope_S_1),max(inputs_envelope_S_2),max(inputs_envelope_S_3)]))*Hz*(rand(int(runtime/record_dt)))
+            # print(bruit)
+            # #inputs_bruit=TimedArray(max(max(input_S_1),max(input_S_2),max(input_S_3))*rand(int(runtime/record_dt)),dt=record_dt)
+            # input_bruit=TimedArray(bruit,dt=record_dt)
+        else:
+            input_W_1=read_file('input_data/input_nonepi_wake_1.txt')
+            input_W_2=read_file('input_data/input_nonepi_wake_2.txt')
+            input_W_3=read_file('input_data/input_nonepi_wake_3.txt')
+
+            inputs_filt_W_1=scipy.signal.filtfilt(b,a,input_W_1[debut:fin])
+            inputs_envelope_W_1=abs(inputs_filt_W_1)
+
+            inputs_filt_W_2=scipy.signal.filtfilt(b,a,input_W_2[debut:fin])
+            inputs_envelope_W_2=abs(inputs_filt_W_2)
+
+            inputs_filt_W_3=scipy.signal.filtfilt(b,a,input_W_3[debut:fin])
+            inputs_envelope_W_3=abs(inputs_filt_W_3)
+
+            MMM=max((max(inputs_envelope_W_1),max(inputs_envelope_W_2),max(inputs_envelope_W_3)))
+            inputs_envelope_W_1=200*inputs_envelope_W_1/MMM
+            inputs_envelope_W_2=200*inputs_envelope_W_2/MMM
+            inputs_envelope_W_3=200*inputs_envelope_W_3/MMM
+
+            inputs1 = TimedArray(inputs_envelope_W_1*Hz, dt=record_dt)
+            inputs2 = TimedArray(inputs_envelope_W_2*Hz, dt=record_dt)
+            inputs3 = TimedArray(inputs_envelope_W_3*Hz, dt=record_dt)
+
+            # sum_S=inputs_envelope_S_1+inputs_envelope_S_2+inputs_envelope_S_3
+            # sum_ve=inputs_envelope_ve_1+inputs_envelope_ve_2+inputs_envelope_ve_3
+            #
+            # print('Preparation du réseau')
+            # n,i,m=0,0,0
+            # del n
+            # del i
+            # del m
+            # preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3)
+            # print('Adding the inputs')
+
     else:
-        input_frequencies = generate_input(1, 2, 1, 3, sim_time)
-
-    inputs1=input_frequencies
-    inputs2=input_frequencies
-    inputs3=input_frequencies
-
-
-
-
-
-
+        # Synthetic inputs
+        if stim == 'sleep':
+            synthetic_sleep = generate_input(1, 1.5, 4, 1, sim_time)
+            inputs1 = synthetic_sleep
+            inputs2 = synthetic_sleep
+            inputs3 = synthetic_sleep
+        else:
+            synthetic_wake = generate_input(1, 2, 1, 3, sim_time)
+            inputs1 = synthetic_wake
+            inputs2 = synthetic_wake
+            inputs3 = synthetic_wake
 
 
 
