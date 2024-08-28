@@ -5,7 +5,6 @@ from brian2 import *
 import scipy
 from scipy import signal
 import ast
-import plotting_Toellke
 
 
 def window_rms(a, window_size):
@@ -14,67 +13,76 @@ def window_rms(a, window_size):
     return sqrt(convolve(a2, window, 'valid'))
 
 
-def band_filter(N, unfiltered_signal, low, high):
-
-    b, a = scipy.signal.butter(N, [low, high], btype='band')
+def band_filter(unfiltered_signal, low, high, samp_freq,):
+    order = 2
+    nyq = 0.5 * samp_freq
+    b, a = signal.butter(order, [low/nyq, high/nyq], btype='band')
     try:
-        filtered_signal = scipy.signal.filtfilt(b, a, unfiltered_signal)
+        filtered_signal = signal.filtfilt(b, a, unfiltered_signal)
 
         return filtered_signal
     except:
         return []
 
 
-def frequency_band_analysis(N, low, high, event, fs):
-
+def frequency_band_analysis(event, low, high, samp_freq):
     try:
-        filtered_sig = band_filter(N, event, low, high)
-        frequencies, power_spectrum = signal.periodogram(filtered_sig, fs / Hz, 'flattop', scaling='spectrum')
+        filtered_sig = band_filter(event, low, high, samp_freq)
+        frequencies, power_spectrum = signal.periodogram(filtered_sig, samp_freq / Hz, 'flattop', scaling='spectrum')
 
         return frequencies, power_spectrum, filtered_sig
     except:
         return [], [], []
 
 
-def event_detection_and_analysis(sig):
-    sample_frequency = 1024 * Hz
-    record_dt = 1 / sample_frequency
-
+def sharp_wave_detection(sig, boundary_condition, peak_condition, record_dt):
+    # calculation of root-mean-square
     start_plot_time = 50 * msecond
     start_ind = int(start_plot_time / record_dt)
     sig_rms = window_rms(sig[start_ind:] - mean(sig[start_ind:]), int(10 * ms / record_dt))
     sig_std = std(sig_rms)
 
+    boundary_value = boundary_condition * sig_std
+    peak_value = peak_condition * sig_std
 
     # detection of sharp waves
-    all_begin = []
-    all_end = []
     begin = 0
     peak = False
-
-    peak_cond = 4.5 * sig_std
-    boundaries_cond = 3 * sig_std
+    all_sharp_waves = []
 
     for ind in range(len(sig_rms)):
         rms = sig_rms[ind]
-        if rms > boundaries_cond and begin == 0:
+        if rms > boundary_value and begin == 0:
+            # event start
             begin = ind
-        if rms > peak_cond and not peak:
+        if rms > peak_value and not peak:
+            # event fulfills peak condition
             peak = True
-        elif rms < boundaries_cond and peak:
-            all_begin.append(begin)
-            all_end.append(ind)
+        elif rms < boundary_value and peak:
+            # sharp wave detected
+            sharp_wave_signal = sig[begin + start_ind:ind + start_ind]
+            all_sharp_waves.append(sharp_wave_signal)
             begin = 0
             peak = False
-        elif rms < boundaries_cond and not peak:
+        elif rms < boundary_value and not peak:
+            # event without sufficient peak
             begin = 0
             peak = False
 
+    return all_sharp_waves
 
-    events = []
+
+def event_detection(sig):
+    # model specific signal properties
+    sample_frequency = 1024 * Hz
+    record_dt = 1 / sample_frequency
+
+    event_signals = sharp_wave_detection(sig, 3, 4.5, record_dt)
+
+    # frequency analysis
     filtered_events = []
-    all_durations = []
     all_spectrum_peaks = []
+    all_durations = []
 
     sharp_wave_ripples = []
     sharp_wave_ripple_peaks = []
@@ -84,40 +92,30 @@ def event_detection_and_analysis(sig):
     gamma_spectrum = []
     ripple_spectrum = []
 
-    N = 2
-    nyq = 0.5 * sample_frequency
-    low = 30 / nyq
-    high = 400 / nyq
-
-    num_events = len(all_begin)
-
-    # general analysis
-    for i in range(num_events):
-        # signal of event
-        event = sig[all_begin[i] + start_ind:all_end[i] + start_ind]
-        duration = len(event) * record_dt
-
-        # Original/general analysis
-        frequencies, power_spectrum, filtered_event = frequency_band_analysis(N, low, high, event, sample_frequency)
+    for event in event_signals:
+        # filter in broad frequency range
+        frequencies, power_spectrum, filtered_event = frequency_band_analysis(event, 30, 400, sample_frequency)
         if len(frequencies) != 0 and len(power_spectrum) != 0:
-            events.append(event)
+            # collect general event data
             filtered_events.append(filtered_event)
+            duration = len(event) * record_dt
             all_durations.append(duration)
             peak_frequency = frequencies[argmax(power_spectrum)]
             all_spectrum_peaks.append(peak_frequency)
 
+            # identify sharp wave ripples
             if 100 <= peak_frequency <= 250:
                 sharp_wave_ripples.append(event)
                 sharp_wave_ripple_peaks.append(peak_frequency)
                 sharp_wave_ripple_durations.append(duration)
 
-        # Band specific analysis
-        theta_spectrum.extend(frequency_band_analysis(N, 5/nyq, 10/nyq, event, sample_frequency)[1])
-        gamma_spectrum.extend(frequency_band_analysis(N, 30/nyq, 100/nyq, event, sample_frequency)[1])
-        ripple_spectrum.extend(frequency_band_analysis(N, 100/nyq, 250/nyq, event, sample_frequency)[1])
+        # collect power of frequency bands
+        theta_spectrum.extend(frequency_band_analysis(event, 5, 10, sample_frequency)[1])
+        gamma_spectrum.extend(frequency_band_analysis(event, 30, 100, sample_frequency)[1])
+        ripple_spectrum.extend(frequency_band_analysis(event, 100, 250, sample_frequency)[1])
 
-
-    all_event_data = [events, filtered_events, all_spectrum_peaks, all_durations]
+    # structure result data
+    all_event_data = [event_signals, filtered_events, all_spectrum_peaks, all_durations]
     swr_data = [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations]
     band_spectra = [theta_spectrum, gamma_spectrum, ripple_spectrum]
 
