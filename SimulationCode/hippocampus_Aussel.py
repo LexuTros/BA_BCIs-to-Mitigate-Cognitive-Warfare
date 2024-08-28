@@ -601,7 +601,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     
     #apply inputs
     if stim=='sleep':
-        input_frequencies = generate_input(1, 2, 6, 1, sim_time)
+        input_frequencies = generate_input(1, 1.5, 4, 1, sim_time)
     else:
         input_frequencies = generate_input(1, 2, 1, 3, sim_time)
 
