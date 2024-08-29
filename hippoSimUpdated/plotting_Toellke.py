@@ -3,7 +3,7 @@ import ast
 import matplotlib.pyplot as plt
 import numpy as np
 from brian2 import *
-from Event_detection_Aussel import *
+from Event_detection_Toellke import *
 import os
 
 
@@ -223,7 +223,7 @@ def single_sim_analysis(file_path, showLFP, showEventLFP):
 
     # extract and analyse data
     recordings = create_list_from_timeSeries(file_path)
-    [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection_and_analysis(recordings)
+    [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection(recordings)
 
     #sharp_wave_ripples = Event_detection_Aussel.event_identification_analysis(recordings, sim_label, 1024 * Hz)
 
@@ -273,7 +273,7 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
 
         file_path = f'{collection_folder_path}/{entity}'
         recordings = create_list_from_timeSeries(file_path)
-        [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection_and_analysis(recordings)
+        [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection(recordings)
 
         all_num.append(len(events))
         all_peaks.extend(all_spectrum_peaks)
@@ -330,7 +330,7 @@ if __name__ == '__main__':
     doPlots = 1
     reversed_analysis = 1
 
-    #parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
+    parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
 
     # sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/1.5", doChat, doPlots)
@@ -339,4 +339,4 @@ if __name__ == '__main__':
     # sim_collection_analysis("sorted_results/sleep/G_ACh/3", doChat, doPlots)
 
 
-    single_sim_analysis("sorted_results/sleep/gCAN/25/LFP_08-06_[1].txt", 0, 0)
+    # single_sim_analysis("sorted_results/sleep/gCAN/25/LFP_08-06_[1].txt", 0, 0)
