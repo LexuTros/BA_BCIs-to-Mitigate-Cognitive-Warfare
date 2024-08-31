@@ -37,11 +37,11 @@ os.mkdir(path)
 
 #Basic network parameters
 liste_Ntypes = [[1, 1]] #list of couples of the form [number of excitatory neuron types, number of inhibitory neuron types], with each number being 1 or 2
-liste_maxN = [8000, 8000, 8000, 8000, 8000, 8000, 8000, 8000] #list of integers, representing the number of excitatory neurons in the CA1 region
+liste_maxN = [7000, 7000, 7000, 7000, 7000, 7000, 7000, 7000] #list of integers, representing the number of excitatory neurons in the CA1 region
 liste_p_tri = [0.4] #list of floats, representing the synaptic connection probability on the tri-synaptic pathway
 liste_p_mono = [0.3] #list of floats, representing the synaptic connection probability on the mono-synaptic pathway
 liste_g_max_i = [600*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of inhibitory synapses
-liste_g_max_e = [54*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of excitatory synapses
+liste_g_max_e = [51*psiemens] #list of floats (in siemens), representing the maximum synaptic conductances of excitatory synapses
 liste_topo_type = ['normal'] #list of strings ('normal' or 'rectangle'), to choose between realistic and rectangular topology of the network
 liste_co_type = ['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles between hippocampal regions
 liste_co_type2 = ['normal'] #list of strings ('normal' or 'uniform'), to choose between distance-related or uniform connection probability profiles within hippocampal regions

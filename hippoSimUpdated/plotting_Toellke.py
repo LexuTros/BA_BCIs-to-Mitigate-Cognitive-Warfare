@@ -9,14 +9,14 @@ import os
 
 def create_list_from_timeSeries(file_path):
     """
-        Reads a file containing a single line list of floats in scientific notation and returns it as a list of floats.
+    Reads a file containing a single line list of floats in scientific notation and returns it as a list of floats.
 
-        Args:
-        filename (str): The name of the file to read from.
+    Parameters:
+        file_path (str): The root path of the file to read from.
 
-        Returns:
+    Returns:
         list: A list of floats contained in the file.
-        """
+    """
     with open(file_path, 'r') as file:
         # Read the single line from the file
         data_line = file.readline().strip()
