@@ -234,8 +234,12 @@ if __name__ == '__main__':
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP9__2024-08-07_05.38.16.txt", 0, 0)
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP12__2024-08-07_05.34.49.txt", 0, 0)
 
-    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-08_12.28.19.txt", 1, 0)
-    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-08_10.55.23.txt", 1, 0)
-    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP8__2024-08-08_11.26.48.txt", 1, 0)
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-08_12.28.19.txt", 1, 0)
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-08_10.55.23.txt", 1, 0)
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP8__2024-08-08_11.26.48.txt", 1, 0)
+
+    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-28_15.57.43.txt", 1, 0)
+    single_file_analysis("Out/Timeseries/S_S/S_S_60s__EEG__2024-08-28_23.17.52.txt", 1, 1)
+
 
 
