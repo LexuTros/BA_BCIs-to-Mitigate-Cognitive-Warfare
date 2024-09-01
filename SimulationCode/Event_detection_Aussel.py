@@ -111,26 +111,26 @@ def event_detection_and_analysis(sig, sigstr, fs):
     band_spectra = [theta_spectrum, gamma_spectrum, ripple_spectrum]
     all_events = [events, filtered_events]
 
-    print('Analysis of the simulation ' + sigstr + ' :')
-    print("Number of studied events : " + str(test_ind))
-
-    mean_peak = mean(all_spectrum_peak)
-    print('Mean peak frequency of the events=' + str(mean_peak) + ' Hz')
-    std_peak = std(all_spectrum_peak)
-    print('Standard deviation of the peak frequency of the events=' + str(std_peak) + ' Hz')
-    min_peak = min(all_spectrum_peak)
-    print('Minimum peak frequency of the events=' + str(min_peak) + ' Hz')
-    max_peak = max(all_spectrum_peak)
-    print('Maximum peak frequency of the events=' + str(max_peak) + ' Hz')
-    print(' ')
-
-    mean_dur = mean(all_duration)
-    print('Mean duration of the events=' + str(mean_dur * 1000) + ' ms')
-    std_dur = std(all_duration)
-    print('Standard deviation of the duration  of the events=' + str(std_dur * 1000) + ' ms')
-    min_dur = min(all_duration)
-    print('Minimum duration of the events=' + str(min_dur))
-    max_dur = max(all_duration)
-    print('Maximum duration of the events=' + str(max_dur))
+    # print('Analysis of the simulation ' + sigstr + ' :')
+    # print("Number of studied events : " + str(test_ind))
+    #
+    # mean_peak = mean(all_spectrum_peak)
+    # print('Mean peak frequency of the events=' + str(mean_peak) + ' Hz')
+    # std_peak = std(all_spectrum_peak)
+    # print('Standard deviation of the peak frequency of the events=' + str(std_peak) + ' Hz')
+    # min_peak = min(all_spectrum_peak)
+    # print('Minimum peak frequency of the events=' + str(min_peak) + ' Hz')
+    # max_peak = max(all_spectrum_peak)
+    # print('Maximum peak frequency of the events=' + str(max_peak) + ' Hz')
+    # print(' ')
+    #
+    # mean_dur = mean(all_duration)
+    # print('Mean duration of the events=' + str(mean_dur * 1000) + ' ms')
+    # std_dur = std(all_duration)
+    # print('Standard deviation of the duration  of the events=' + str(std_dur * 1000) + ' ms')
+    # min_dur = min(all_duration)
+    # print('Minimum duration of the events=' + str(min_dur))
+    # max_dur = max(all_duration)
+    # print('Maximum duration of the events=' + str(max_dur))
 
     return all_spectrum_peak, band_spectra, all_events
