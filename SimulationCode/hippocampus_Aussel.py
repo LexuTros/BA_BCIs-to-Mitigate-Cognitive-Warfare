@@ -511,8 +511,10 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     else :
         co='wake'
 
+    record_dt=1./1024 *second
+
     # Create Input Arrays
-    use_eeg_files = True
+    use_eeg_files = False
 
     if use_eeg_files:
         # Original Inputs:
@@ -523,9 +525,6 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
         low = 3 / nyq
         high=50/nyq
         b, a = scipy.signal.butter(N, high, btype='low')
-
-        record_dt=1./1024 *second
-        #[120000:]
 
         debut=(int(ver)-1)*60000
         fin=int(ver)*60000
