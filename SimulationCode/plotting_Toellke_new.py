@@ -227,11 +227,11 @@ def plot_power_spectral_density_bands(psd_bands, label):
 
     # Number of groups
     n_groups = len(categories)
-    fig, ax = plt.subplots(figsize=(4, 4))
+    fig, ax = plt.subplots(figsize=(4, 4)) # for 1: (3, 4)
 
     # Set position of bar on X axis
     index = np.arange(n_groups)
-    bar_width = 0.13
+    bar_width = 0.13 # for 1: 0.075
     cap_size = 3
 
     rects1 = ax.bar(index - bar_width, ripple_means, bar_width, yerr=ripple_stds,
@@ -352,9 +352,9 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
 
 
     if do_plots:
-        # plot_power_spectral_density_bands(all_bands, "Wave Realization Interval (w)")
+        plot_power_spectral_density_bands(all_bands, "Wave Realization Interval (w)")
         # plot_peak_frequencies(all_peaks, "Wave Realization Interval (w)")
-        plot_line_diagram(all_occ_freq, "Wave Realization Interval (w)", "Frequency of Occurrence (Hz)")
+        #plot_line_diagram(all_occ_freq, "Wave Realization Interval (w)", "Frequency of Occurrence (Hz)")
 
 
     return all_num
@@ -381,4 +381,4 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
 if __name__ == '__main__':
 
-    sim_collection_analysis("sorted_output/w_analysis", 0, 1)
+    sim_collection_analysis("sorted_output/best", 0, 1)
