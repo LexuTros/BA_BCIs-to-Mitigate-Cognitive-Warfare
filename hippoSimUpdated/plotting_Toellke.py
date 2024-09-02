@@ -289,7 +289,7 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
         print(f'\n___ {sim_label} ___\n')
         print(f"Average Events per minute : {mean(all_num)}")
         print(f"Average peak frequency : {mean(all_peaks)}")
-        print(f"Average Event duration : {mean(swr_dur) * 1000} ms")
+        print(f"Average Event duration : {mean(all_dur) * 1000} ms")
         print("--------------------------------------------")
         print(f"Average Sharp Wave Ripples per minute : {mean(swr_num)}")
         print(f"Average Sharp Wave Ripple peak frequency : {mean(swr_peaks)}")
