@@ -69,6 +69,15 @@ def plot_lfp(recordings, sim_label):
     #plt.ylim(top=5e-6, bottom=-1e-6)
     plt.title(f'Local Field Potential Over Time: {sim_label}')
     plt.grid(True)
+
+    # # Set y-axis tick labels at multiples of 1e-6 from -1e-6 to 5e-6
+    # tick_values = [-1.5e-4, -1e-4, 0, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4]
+    # tick_labels = ['', '-1', '0', '1', '2', '3', '4', '5', '6', '7']
+    # plt.yticks(tick_values, tick_labels)
+    #
+    # # Add scaling factor above y-axis
+    # plt.text(0.01, 1.02, '1e-4', transform=plt.gca().transAxes, ha='left', va='bottom')
+
     plt.show()
 
     # Save the figure
@@ -89,6 +98,64 @@ def plot_full_length_lfp(file_path):
     for i in range(lfp_frames_in_recording):
         lfp_frame = recordings[(0 + i) * lfp_frame_length: (1 + i) * lfp_frame_length]
         plot_lfp(lfp_frame, f"Frame nr. {i + 1}")
+
+
+def plot_line_diagram(label_value_list, x_label, y_label, do_comp, comp_values):
+    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+
+    categories = [x[0] for x in label_value_list]
+    values = [x[1] for x in label_value_list]
+
+    # comp_values = [1, 1/2, 1/3, 1/4]
+
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+
+    # Plotting the line diagram
+    if do_comp:
+        ax.plot(categories, comp_values, marker='o', linestyle='-', color="orange")  # comp values
+    ax.plot(categories, values, marker='o', linestyle='-')  # Line with markers
+
+    # Setting labels and title
+    #ax.set_title(f'Event Peak Frequencies')
+    ax.set_ylabel(f"{y_label}")
+    ax.set_xlabel(f"{x_label}")
+    ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
+    ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
+
+    ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
+
+    # Adjust layout to make sure nothing gets cut off
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_occurrence_frequencies(occurrence_frequencies, parameter_label):
+    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+
+    categories = [x[0] for x in occurrence_frequencies]
+    means = [np.mean(x[1]) for x in occurrence_frequencies]
+    std_devs = [np.std(x[1]) for x in occurrence_frequencies]
+
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+
+    # Plotting the error bars
+    ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=8)
+
+    # Setting labels and title
+    #ax.set_title(f'Event Peak Frequencies')
+    ax.set_ylabel('Frequency of Occurrence (Hz)')
+    ax.set_xlabel(f"{parameter_label}")
+    ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
+    ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
+
+    ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
+
+    # Adjust layout to make sure nothing gets cut off
+    plt.tight_layout()
+    plt.show()
+
 
 
 def plot_frequency_distribution(frequencies, label):
@@ -130,19 +197,19 @@ def plot_peak_frequencies(peak_frequencies, parameter_label):
     std_devs = [np.std(x[1]) for x in peak_frequencies]
 
     # Create figure and axis
-    fig, ax = plt.subplots(figsize=(4, 4))  # Adjust figure size to ensure everything fits well
+    fig, ax = plt.subplots(figsize=(3, 4))  # or (4, 4) Adjust figure size to ensure everything fits well
 
     # Plotting the error bars
-    ax.errorbar(categories, means, yerr=std_devs, fmt='o', color='blue', ecolor='blue', capsize=5)
+    ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=8)
 
     # Setting labels and title
-    #ax.set_title(f'Influence of {parameter_label} on peak frequency')
+    #ax.set_title(f'Event Peak Frequencies')
     ax.set_ylabel('Peak Frequency (Hz)')
     ax.set_xlabel(f"{parameter_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
 
-    # ax.set_xlim(left=0)  # Set the left boundary of the x-axis slightly less than the index of the first category
+    ax.set_xlim(-0.5, len(categories) - 0.5)  # Modify these values to compress or expand the x-axis
     ax.set_ylim(0, 200)
     ax.set_yticks(np.arange(0, 176, 25))
     # Adjust layout to make sure nothing gets cut off
@@ -150,8 +217,8 @@ def plot_peak_frequencies(peak_frequencies, parameter_label):
     plt.show()
 
     # Save plot as PNG file
-    timestamp = (str(datetime.datetime.now().date()) + '_'
-                 + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
+    # timestamp = (str(datetime.datetime.now().date()) + '_'
+    #              + str(datetime.datetime.now().time().strftime("%H:%M")).replace(':', '.'))
     #plt.savefig('Out/Events/eventParameters_after_' + str(int(runtime)) + 's__' + timestamp + '.png')
 
 
@@ -171,12 +238,12 @@ def plot_power_spectral_density_bands(psd_bands, label):
 
     # Number of groups
     n_groups = len(categories)
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(4, 4))
 
     # Set position of bar on X axis
     index = np.arange(n_groups)
-    bar_width = 0.19
-    cap_size = 3.5
+    bar_width = 0.13
+    cap_size = 3
 
     rects1 = ax.bar(index - bar_width, ripple_means, bar_width, yerr=ripple_stds,
                     color='orange', label='Ripple band', capsize=cap_size,
@@ -191,8 +258,8 @@ def plot_power_spectral_density_bands(psd_bands, label):
                     error_kw={'zorder': 2}, zorder=3)
 
     # Axis labels etc.
-    ax.set_ylabel('Power (V^2)')
-    ax.set_title(f'Power in oscillation bands: {label}')
+    ax.set_ylabel('Power ($V^2$)')
+    # ax.set_title(f'Power in oscillation bands: {label}')
     ax.set_xlabel(f"{label}")
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
@@ -202,6 +269,7 @@ def plot_power_spectral_density_bands(psd_bands, label):
     ax.set_yscale('log')
 
     # Set limits and ticks on y-axis to match original plot
+    ax.set_xlim(-0.5, len(categories) - 0.5)
     ax.set_ylim(1e-18, 1e-8)  # Adjust as necessary based on your data range
     ax.yaxis.set_tick_params(which='both', labelleft=True)
 
@@ -262,9 +330,12 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
     sim_label = f'{research_parameter} = {parameter_value}'
 
     all_num = []
+    all_occ_freq = []
     all_peaks = []
     all_dur = []
+
     swr_num = []
+    swr_occ_freq = []
     swr_peaks = []
     swr_dur = []
 
@@ -275,11 +346,15 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
         recordings = create_list_from_timeSeries(file_path)
         [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection(recordings)
 
-        all_num.append(len(events))
+        num_all = len(events)
+        all_num.append(num_all)
+        all_occ_freq.append(num_all/60)
         all_peaks.extend(all_spectrum_peaks)
         all_dur.extend(all_duration)
 
-        swr_num.append(len(sharp_wave_ripples))
+        num_swrs = len(sharp_wave_ripples)
+        swr_num.append(num_swrs)
+        swr_occ_freq.append(num_swrs/60)
         swr_peaks.extend(sharp_wave_ripple_peaks)
         swr_dur.extend(sharp_wave_ripple_durations)
 
@@ -299,29 +374,34 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
         plot_frequency_distribution(all_peaks, sim_label)
 
 
-    all_data = [all_num, all_peaks, all_dur]
-    swr_data = [swr_num, swr_peaks, swr_dur]
+    all_data = [all_num, all_occ_freq, all_peaks, all_dur]
+    swr_data = [swr_num, swr_occ_freq, swr_peaks, swr_dur]
 
     return all_data, swr_data
 
 
 def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
+    parameter_label = main_folder_path.split("/")[-1]
 
     all_peak_lists = []
+    all_occ_freq_lists = []
 
-    [all_num, all_peaks, all_dur], [swr_num, swr_peaks, swr_dur] = sim_collection_analysis("sorted_results/sleep/healthy", do_chat, do_plots)
+    [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur] = sim_collection_analysis("sorted_results/sleep/healthy", do_chat, do_plots)
     all_peak_lists.append(("healthy", all_peaks))
 
     parameter_values = sorted(os.listdir(main_folder_path), reverse=reverse_analysis)
 
     for parameter in parameter_values:
         parameter_folder_path = f"{main_folder_path}/{parameter}"
+        clean_param_string = parameter.lstrip("0")
 
-        [all_num, all_peaks, all_dur], [swr_num, swr_peaks, swr_dur] = sim_collection_analysis(parameter_folder_path, do_chat, do_plots)
-        all_peak_lists.append((parameter.lstrip("0"), all_peaks))
+        [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur] = sim_collection_analysis(parameter_folder_path, do_chat, do_plots)
+        all_peak_lists.append((clean_param_string, all_peaks))
+        all_occ_freq_lists.append((clean_param_string, all_occ_freq))
 
 
-    plot_peak_frequencies(all_peak_lists, main_folder_path.split("/")[-1])
+    plot_peak_frequencies(all_peak_lists, parameter_label)
+    plot_occurrence_frequencies(all_occ_freq_lists, parameter_label)
 
 
 if __name__ == '__main__':
