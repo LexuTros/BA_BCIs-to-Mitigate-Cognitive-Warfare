@@ -104,7 +104,7 @@ def plot_line_diagram(label_value_list, x_label, y_label, do_comp, comp_values):
     # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
 
     categories = [x[0] for x in label_value_list]
-    values = [x[1] for x in label_value_list]
+    values = [mean(x[1]) for x in label_value_list]
 
     # comp_values = [1, 1/2, 1/3, 1/4]
 
@@ -113,8 +113,8 @@ def plot_line_diagram(label_value_list, x_label, y_label, do_comp, comp_values):
 
     # Plotting the line diagram
     if do_comp:
-        ax.plot(categories, comp_values, marker='o', linestyle='-', color="orange")  # comp values
-    ax.plot(categories, values, marker='o', linestyle='-')  # Line with markers
+        ax.plot(categories, comp_values, marker='o', linestyle='-', color="grey")  # comp values
+    ax.plot(categories, values, marker='o', linestyle='-', color="green")  # Line with markers
 
     # Setting labels and title
     #ax.set_title(f'Event Peak Frequencies')
@@ -130,7 +130,7 @@ def plot_line_diagram(label_value_list, x_label, y_label, do_comp, comp_values):
     plt.show()
 
 
-def plot_occurrence_frequencies(occurrence_frequencies, parameter_label):
+def plot_occurrence_frequencies(occurrence_frequencies, parameter_label, comp_frequencies=[np.nan, np.nan, np.nan, np.nan, np.nan]):
     # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
 
     categories = [x[0] for x in occurrence_frequencies]
@@ -142,6 +142,7 @@ def plot_occurrence_frequencies(occurrence_frequencies, parameter_label):
 
     # Plotting the error bars
     ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=8)
+    ax.errorbar(categories, comp_frequencies, fmt='o', color='green')
 
     # Setting labels and title
     #ax.set_title(f'Event Peak Frequencies')
@@ -385,9 +386,13 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
     all_peak_lists = []
     all_occ_freq_lists = []
+    swr_occ_freq_lists = []
 
     [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur] = sim_collection_analysis("sorted_results/sleep/healthy", do_chat, do_plots)
     all_peak_lists.append(("healthy", all_peaks))
+    all_occ_freq_lists.append(("healthy", all_occ_freq))
+    swr_occ_freq_lists.append(("healthy", swr_occ_freq))
+
 
     parameter_values = sorted(os.listdir(main_folder_path), reverse=reverse_analysis)
 
@@ -398,21 +403,25 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
         [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur] = sim_collection_analysis(parameter_folder_path, do_chat, do_plots)
         all_peak_lists.append((clean_param_string, all_peaks))
         all_occ_freq_lists.append((clean_param_string, all_occ_freq))
+        swr_occ_freq_lists.append((clean_param_string, swr_occ_freq))
+
 
 
     plot_peak_frequencies(all_peak_lists, parameter_label)
     plot_occurrence_frequencies(all_occ_freq_lists, parameter_label)
+    # plot_occurrence_frequencies(swr_occ_freq_lists, parameter_label)
+    # plot_line_diagram(swr_occ_freq_lists, parameter_label, "Occurrence Frequency (Hz)", 1, [mean(x[1]) for x in all_occ_freq_lists])
 
 
 if __name__ == '__main__':
 
     doChat = 1
     doPlots = 1
-    reversed_analysis = 1
+    reversed_analysis = 0
 
-    #parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
+    parameter_comparison("sorted_results/sleep/G_ACh", reversed_analysis, doChat, doPlots)
 
-    sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
+    # sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/1.5", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/2", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/2.5", doChat, doPlots)
