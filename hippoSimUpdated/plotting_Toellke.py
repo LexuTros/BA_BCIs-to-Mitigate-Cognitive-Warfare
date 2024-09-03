@@ -330,9 +330,9 @@ if __name__ == '__main__':
     doPlots = 1
     reversed_analysis = 1
 
-    parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
+    #parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
 
-    # sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
+    sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/1.5", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/2", doChat, doPlots)
     # sim_collection_analysis("sorted_results/sleep/G_ACh/2.5", doChat, doPlots)
