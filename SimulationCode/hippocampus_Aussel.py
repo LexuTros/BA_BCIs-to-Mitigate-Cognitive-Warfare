@@ -511,7 +511,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     else :
         co='wake'
 
-    record_dt=1./1024 *second
+    record_dt=defaultclock.dt
 
     # Create Input Arrays
     use_eeg_files = False
@@ -525,6 +525,8 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
         low = 3 / nyq
         high=50/nyq
         b, a = scipy.signal.butter(N, high, btype='low')
+
+        record_dt = 1. / 1024 * second
 
         debut=(int(ver)-1)*60000
         fin=int(ver)*60000
@@ -606,7 +608,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     else:
         # Synthetic inputs
         if stim == 'sleep':
-            synthetic_sleep = generate_input(1, 1.3, 3, 1, sim_time)
+            synthetic_sleep = generate_input(1, 1.5, 4, 1, sim_time)
             inputs1 = synthetic_sleep
             inputs2 = synthetic_sleep
             inputs3 = synthetic_sleep
