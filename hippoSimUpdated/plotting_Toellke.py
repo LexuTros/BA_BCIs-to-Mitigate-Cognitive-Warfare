@@ -269,7 +269,7 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
     swr_dur = []
 
     # aggregate data from collection
-    for entity in os.listdir(collection_folder_path)[:9]:
+    for entity in os.listdir(collection_folder_path)[:8]:
 
         file_path = f'{collection_folder_path}/{entity}'
         recordings = create_list_from_timeSeries(file_path)
