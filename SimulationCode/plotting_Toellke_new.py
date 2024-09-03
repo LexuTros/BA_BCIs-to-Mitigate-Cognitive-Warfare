@@ -3,7 +3,7 @@ import ast
 import matplotlib.pyplot as plt
 import numpy as np
 from brian2 import *
-from Event_detection_Toellke import *
+from Event_detection_Aussel import *
 import os
 
 
@@ -91,6 +91,62 @@ def plot_full_length_lfp(file_path):
         plot_lfp(lfp_frame, f"Frame nr. {i + 1}")
 
 
+def plot_line_diagram(label_value_list, x_label, y_label):
+    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+
+    categories = [x[0] for x in label_value_list]
+    values = [x[1] for x in label_value_list]
+
+    comp_values = [1, 1/2, 1/3, 1/4]
+
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+
+    # Plotting the line diagram
+    ax.plot(categories, comp_values, marker='o', linestyle='-', color="orange")  # comp values
+    ax.plot(categories, values, marker='o', linestyle='-')  # Line with markers
+
+    # Setting labels and title
+    #ax.set_title(f'Event Peak Frequencies')
+    ax.set_ylabel(f"{y_label}")
+    ax.set_xlabel(f"{x_label}")
+    ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
+    ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
+
+    ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
+
+    # Adjust layout to make sure nothing gets cut off
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_occurrence_frequencies(occurrence_frequencies, parameter_label):
+    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+
+    categories = [x[0] for x in occurrence_frequencies]
+    means = [np.mean(x[1]) for x in occurrence_frequencies]
+    std_devs = [np.std(x[1]) for x in occurrence_frequencies]
+
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+
+    # Plotting the error bars
+    ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=8)
+
+    # Setting labels and title
+    #ax.set_title(f'Event Peak Frequencies')
+    ax.set_ylabel('Frequency of Occurrence (Hz)')
+    ax.set_xlabel(f"{parameter_label}")
+    ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
+    ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
+
+    ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
+
+    # Adjust layout to make sure nothing gets cut off
+    plt.tight_layout()
+    plt.show()
+
+
 def plot_frequency_distribution(frequencies, label):
     # Define the bins for 20 Hz intervals from 20 Hz to 300 Hz
     bins = np.arange(20, 251, 10)
@@ -130,19 +186,19 @@ def plot_peak_frequencies(peak_frequencies, parameter_label):
     std_devs = [np.std(x[1]) for x in peak_frequencies]
 
     # Create figure and axis
-    fig, ax = plt.subplots(figsize=(4, 4))  # Adjust figure size to ensure everything fits well
+    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
 
     # Plotting the error bars
-    ax.errorbar(categories, means, yerr=std_devs, fmt='o', color='blue', ecolor='blue', capsize=5)
+    ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=8)
 
     # Setting labels and title
-    #ax.set_title(f'Influence of {parameter_label} on peak frequency')
+    #ax.set_title(f'Event Peak Frequencies')
     ax.set_ylabel('Peak Frequency (Hz)')
     ax.set_xlabel(f"{parameter_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
 
-    # ax.set_xlim(left=0)  # Set the left boundary of the x-axis slightly less than the index of the first category
+    ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
     ax.set_ylim(0, 200)
     ax.set_yticks(np.arange(0, 176, 25))
     # Adjust layout to make sure nothing gets cut off
@@ -171,12 +227,12 @@ def plot_power_spectral_density_bands(psd_bands, label):
 
     # Number of groups
     n_groups = len(categories)
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(4, 4)) # for 1: (3, 4)
 
     # Set position of bar on X axis
     index = np.arange(n_groups)
-    bar_width = 0.19
-    cap_size = 3.5
+    bar_width = 0.13 # for 1: 0.075
+    cap_size = 3
 
     rects1 = ax.bar(index - bar_width, ripple_means, bar_width, yerr=ripple_stds,
                     color='orange', label='Ripple band', capsize=cap_size,
@@ -191,8 +247,8 @@ def plot_power_spectral_density_bands(psd_bands, label):
                     error_kw={'zorder': 2}, zorder=3)
 
     # Axis labels etc.
-    ax.set_ylabel('Power (V^2)')
-    ax.set_title(f'Power in oscillation bands: {label}')
+    ax.set_ylabel('Power ($V^2$)')
+    #ax.set_title(f'Power in Oscillation Bands')
     ax.set_xlabel(f"{label}")
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
@@ -202,6 +258,7 @@ def plot_power_spectral_density_bands(psd_bands, label):
     ax.set_yscale('log')
 
     # Set limits and ticks on y-axis to match original plot
+    ax.set_xlim(-0.5, len(categories) - 0.5)
     ax.set_ylim(1e-18, 1e-8)  # Adjust as necessary based on your data range
     ax.yaxis.set_tick_params(which='both', labelleft=True)
 
@@ -263,46 +320,44 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
 
     all_num = []
     all_peaks = []
-    all_dur = []
-    swr_num = []
-    swr_peaks = []
-    swr_dur = []
+    all_bands = []
+    all_occ_freq = []
 
     # aggregate data from collection
     for entity in os.listdir(collection_folder_path)[:9]:
 
         file_path = f'{collection_folder_path}/{entity}'
         recordings = create_list_from_timeSeries(file_path)
-        [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection(recordings)
+        spectrum_peaks, band_spectra, all_events = event_detection_and_analysis(recordings, sim_label, 1024 * Hz)
+        events, filtered_events = all_events
 
-        all_num.append(len(events))
-        all_peaks.extend(all_spectrum_peaks)
-        all_dur.extend(all_duration)
+        value_w = entity.split('_')[0][1]
+        sim_time_int = int(entity.split('_')[1][:2])
+        num_events = len(events)
+        occ_freq = num_events/sim_time_int
 
-        swr_num.append(len(sharp_wave_ripples))
-        swr_peaks.extend(sharp_wave_ripple_peaks)
-        swr_dur.extend(sharp_wave_ripple_durations)
+        all_num.append(num_events)
+        all_peaks.append((f"{value_w}", spectrum_peaks))
+        all_bands.append((f"{value_w}", band_spectra))
+        all_occ_freq.append((f"{value_w}", occ_freq))
+
+
 
 
     # display data
     if chat_output:
         print(f'\n___ {sim_label} ___\n')
         print(f"Average Events per minute : {mean(all_num)}")
-        print(f"Average peak frequency : {mean(all_peaks)}")
-        print(f"Average Event duration : {mean(all_dur) * 1000} ms")
-        print("--------------------------------------------")
-        print(f"Average Sharp Wave Ripples per minute : {mean(swr_num)}")
-        print(f"Average Sharp Wave Ripple peak frequency : {mean(swr_peaks)}")
-        print(f"Average Sharp Wave Ripple duration : {mean(swr_dur) * 1000} ms")
+        # print(f"Average peak frequency : {mean(all_peaks)}\n\n")
+
 
     if do_plots:
-        plot_frequency_distribution(all_peaks, sim_label)
+        plot_power_spectral_density_bands(all_bands, "Wave Realization Interval (w)")
+        # plot_peak_frequencies(all_peaks, "Wave Realization Interval (w)")
+        #plot_line_diagram(all_occ_freq, "Wave Realization Interval (w)", "Frequency of Occurrence (Hz)")
 
 
-    all_data = [all_num, all_peaks, all_dur]
-    swr_data = [swr_num, swr_peaks, swr_dur]
-
-    return all_data, swr_data
+    return all_num
 
 
 def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
@@ -326,17 +381,4 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
 if __name__ == '__main__':
 
-    doChat = 1
-    doPlots = 1
-    reversed_analysis = 1
-
-    #parameter_comparison("sorted_results/sleep/maxN", reversed_analysis, doChat, doPlots)
-
-    sim_collection_analysis("sorted_results/sleep/healthy", doChat, doPlots)
-    # sim_collection_analysis("sorted_results/sleep/G_ACh/1.5", doChat, doPlots)
-    # sim_collection_analysis("sorted_results/sleep/G_ACh/2", doChat, doPlots)
-    # sim_collection_analysis("sorted_results/sleep/G_ACh/2.5", doChat, doPlots)
-    # sim_collection_analysis("sorted_results/sleep/G_ACh/3", doChat, doPlots)
-
-
-    # single_sim_analysis("sorted_results/sleep/gCAN/25/LFP_08-06_[1].txt", 0, 0)
+    sim_collection_analysis("sorted_output/best", 0, 1)

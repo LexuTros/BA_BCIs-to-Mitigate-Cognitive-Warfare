@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from brian2 import *
 import Event_detection_Aussel
+import thesis_code_Toellke
 
 
 def create_list_from_timeSeries(file_path):
@@ -48,6 +49,15 @@ def plot_lfp(recordings, sim_label):
     #plt.ylim(top=5e-6, bottom=-1e-6)
     plt.title(f'Local Field Potential Over Time: {sim_label}')
     plt.grid(True)
+
+    # # Set y-axis tick labels at multiples of 1e-6 from -1e-6 to 5e-6
+    # tick_values = [-1.5e-4, -1e-4, 0, 1e-4, 2e-4, 3e-4, 4e-4, 5e-4, 6e-4, 7e-4]
+    # tick_labels = ['', '-1', '0', '1', '2', '3', '4', '5', '6', '7']
+    # plt.yticks(tick_values, tick_labels)
+    #
+    # # Add scaling factor above y-axis
+    # plt.text(0.01, 1.02, '1e-4', transform=plt.gca().transAxes, ha='left', va='bottom')
+
     plt.show()
 
     # Save the figure
@@ -169,7 +179,7 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.show()
 
 
-def single_file_analysis(file_path, showLFP, showEventLFP):
+def single_file_analysis(file_path, showLFP, showEventLFP, label):
     # Extract strings from path
     sim_type, file_name = file_path.split("/")[-2:]
     sim_label = file_name.split("__")[0]
@@ -185,12 +195,13 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
     # General LFP
     lfp_recording_samples = []
 
-    if len(recordings) >= 30720:
-        lfp_recording_samples.append(recordings[20480:30721]) # 10s recording, starting at 20s
-    elif len(recordings) < 6144:
-        lfp_recording_samples.append(recordings) # if shorter than 6s, plot all
-    else:
-        lfp_recording_samples.append(recordings[1024:6144]) # 5s recording, starting at 1s
+    # if len(recordings) >= 30720:
+    #     lfp_recording_samples.append(recordings[20480:30721]) # 10s recording, starting at 20s
+    # elif len(recordings) < 6144:
+    #     lfp_recording_samples.append(recordings) # if shorter than 6s, plot all
+    # else:
+    #     lfp_recording_samples.append(recordings[1024:6144]) # 5s recording, starting at 1s
+    lfp_recording_samples.append(recordings[1824:12064]) # 5s recording, starting at 1s
 
     # Event LFPs
     sample_event_idxs = []
@@ -215,7 +226,7 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
     # generate plots
     if showLFP:
         for recording_sample in lfp_recording_samples:
-            plot_lfp(recording_sample, f"{research_param}")
+            plot_lfp(recording_sample, f"{label}")
 
     if showEventLFP:
         for idx in sample_event_idxs:
@@ -223,23 +234,29 @@ def single_file_analysis(file_path, showLFP, showEventLFP):
             plot_lfp(filtered_events[idx], f"Event {str(idx)} in {sim_label} - filtered")
 
     #plot_peak_frequencies(spectrum_peaks_parameter, sim_time)
-    plot_power_spectral_density_bands(band_spectra_parameter, sim_time)
+    #plot_power_spectral_density_bands(band_spectra_parameter, sim_time)
 
     print("\n")
 
 
 if __name__ == '__main__':
 
-    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-07_05.07.50.txt", 0, 0)
-    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP9__2024-08-07_05.38.16.txt", 0, 0)
-    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP12__2024-08-07_05.34.49.txt", 0, 0)
-
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-08_12.28.19.txt", 1, 0)
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-08_10.55.23.txt", 1, 0)
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP8__2024-08-08_11.26.48.txt", 1, 0)
 
-    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-28_15.57.43.txt", 1, 0)
-    single_file_analysis("Out/Timeseries/S_S/S_S_60s__EEG__2024-08-28_23.17.52.txt", 1, 1)
+    # final vs eeg
+    single_file_analysis("Out/Timeseries/S_S/S_S_10s__RP3__2024-09-03_01.40.09.txt", 1, 0, "3-3")
+    single_file_analysis("Out/Timeseries/S_S/S_S_15s__RP3__2024-09-02_18.25.28.txt", 1, 0, "3-3")
+    single_file_analysis("Out/Timeseries/S_S/S_S_15s__RP3__2024-09-02_22.37.41.txt", 1, 0, "4-5")
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-28_15.57.43.txt", 1, 0, "")
+    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__EEG__2024-08-28_23.17.52.txt", 1, 0, "EEG")
 
+    # inputvalues = thesis_code_Toellke.generate_input(1, 0.1, 1, 1, 60 * second)
+    # plot_lfp(inputvalues[20480:30721], "input")
 
-
+    # f=1, A=1, W= 1-4
+    #single_file_analysis("OUt/Timeseries/S_S/S_S_15s__RP1__2024-09-01_21.29.06.txt", 1, 0, "W=1")
+    #single_file_analysis("OUt/Timeseries/S_S/S_S_45s__RP2__2024-07-31_07.35.23.txt ", 1, 0, "W=2")
+    #single_file_analysis("OUt/Timeseries/S_S/S_S_45s__RP3__2024-07-31_07.27.29.txt", 1, 0, "W=3")
+    #single_file_analysis("OUt/Timeseries/S_S/S_S_45s__RP4__2024-07-31_07.32.47.txt", 1, 0, "W=4")
