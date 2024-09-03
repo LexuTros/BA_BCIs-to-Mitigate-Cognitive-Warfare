@@ -1,0 +1,28 @@
+runtime: 60. s
+plot_raster: False
+types: [1, 1]
+all_N: [6000, 6000, 600, 6000, 600, 60, 60, 600]
+topo: normal
+co: normal
+co2: normal
+A0: 0
+A1: 1.2
+dur: 4. s
+f1: 50. mHz
+duty_cycle: 0.5
+input_type: custom
+all_p_intra: [[[0, 0.37], [0.54, 0]], [[0.0, 0.06], [0.14, 0]], [[0.56, 0.75], [0.75, 0]], [[0, 0.28], [0.3, 0.7]]]
+all_p_inter: [[[[0, 0]], [[0.4, 0.4]], [[0.3, 0.3]], [[0.3, 0.3]]], [[[0, 0]], [[0, 0]], [[0.4, 0.4]], [[0.0, 0.0]]], [[[0, 0]], [[0, 0]], [[0, 0]], [[0.4, 0.4]]], [[[0.4, 0.4]], [[0, 0]], [[0, 0]], [[0, 0]]]]
+all_gains: [[0.3333333333333333, 1], [3, 3], [0.3333333333333333, 1], [1, 3]]
+all_g_max_i: [0.6 * nsiemens]
+all_g_max_e: [48. * psiemens]
+gCAN: 0.25 m^-4 kg^-1 s^3 A^2
+save_sim_raster: False
+save_neuron_pos: False
+save_syn_mat: False
+in_file_1: input_data/input_nonepi_sleep_1.txt
+in_file_2: input_data/input_nonepi_sleep_2.txt
+in_file_3: input_data/input_nonepi_sleep_3.txt
+in_fs: 1.024 kHz
+tau_Cl: 100. ms
+Ek: -100. mV
