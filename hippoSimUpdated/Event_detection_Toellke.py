@@ -98,7 +98,7 @@ def event_detection(sig):
         if len(frequencies) != 0 and len(power_spectrum) != 0:
             # collect general event data
             filtered_events.append(filtered_event)
-            duration = len(event) * record_dt
+            duration = len(event) * record_dt * 1000
             all_durations.append(duration)
             peak_frequency = frequencies[argmax(power_spectrum)]
             all_spectrum_peaks.append(peak_frequency)
