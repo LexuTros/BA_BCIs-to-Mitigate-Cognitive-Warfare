@@ -241,14 +241,14 @@ def single_file_analysis(file_path, showLFP, showEventLFP, label):
 
 if __name__ == '__main__':
 
-    # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-08_12.28.19.txt", 1, 0)
+    single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-08_12.28.19.txt", 1, 0, "")
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP6__2024-08-08_10.55.23.txt", 1, 0)
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP8__2024-08-08_11.26.48.txt", 1, 0)
 
     # final vs eeg
-    single_file_analysis("Out/Timeseries/S_S/S_S_10s__RP3__2024-09-03_01.40.09.txt", 1, 0, "3-3")
-    single_file_analysis("Out/Timeseries/S_S/S_S_15s__RP3__2024-09-02_18.25.28.txt", 1, 0, "3-3")
-    single_file_analysis("Out/Timeseries/S_S/S_S_15s__RP3__2024-09-02_22.37.41.txt", 1, 0, "4-5")
+    # single_file_analysis("Out/Timeseries/S_S/S_S_10s__RP3__2024-09-03_01.40.09.txt", 1, 0, "3-3")
+    # single_file_analysis("Out/Timeseries/S_S/S_S_15s__RP3__2024-09-02_18.25.28.txt", 1, 0, "3-3")
+    # single_file_analysis("Out/Timeseries/S_S/S_S_15s__RP3__2024-09-02_22.37.41.txt", 1, 0, "4-5")
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__RP4__2024-08-28_15.57.43.txt", 1, 0, "")
     # single_file_analysis("Out/Timeseries/S_S/S_S_60s__EEG__2024-08-28_23.17.52.txt", 1, 0, "EEG")
 

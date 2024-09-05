@@ -54,7 +54,7 @@ def write_file(simutype,data,tmin,dur,rp):
     sim_time_str = str(int(dur))+"s"
     research_param_str = "RP" + str(rp)
     
-    time_series = open('Out/Timeseries/'+simutype+'/'+simutype+'_'+sim_time_str+'__'+research_param_str+'__'+timestamp+'.txt', 'w')
+    time_series = open('Out/Timeseries/frequency_exploration/'+simutype+'_'+sim_time_str+'__'+research_param_str+'__'+timestamp+'.txt', 'w')
     time_series.write('[')
     for n in data[start_ind:end_ind]:
         time_series.write('%.2E,'%n)
@@ -511,7 +511,6 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     else :
         co='wake'
 
-    record_dt=defaultclock.dt
 
     # Create Input Arrays
     use_eeg_files = False
@@ -608,7 +607,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     else:
         # Synthetic inputs
         if stim == 'sleep':
-            synthetic_sleep = generate_input(1, 1.5, 4, 1, sim_time)
+            synthetic_sleep = generate_input(1, research_parameter, 1, 1, sim_time)
             inputs1 = synthetic_sleep
             inputs2 = synthetic_sleep
             inputs3 = synthetic_sleep
@@ -620,19 +619,19 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
 
 
 
-    In_exc1=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs1(t)*tstep', dt=record_dt)    #dt ? record_dt ?
+    In_exc1=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs1(t)*tstep', dt=tstep)    #dt ? record_dt ?
     S11 = Synapses(In_exc1, EC_py_CAN, on_pre='he_post+=g_max_e')
     S11.connect(p='p_in')
     S13 = Synapses(In_exc1, EC_inh, on_pre='he_post+=g_max_e')
     S13.connect(p='p_in')
 
-    In_exc2=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs2(t)*tstep', dt=record_dt)    #dt ? record_dt ?
+    In_exc2=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs2(t)*tstep', dt=tstep)    #dt ? record_dt ?
     S21 = Synapses(In_exc2, EC_py_CAN, on_pre='he_post+=g_max_e')
     S21.connect(p='p_in')
     S23 = Synapses(In_exc2, EC_inh, on_pre='he_post+=g_max_e')
     S23.connect(p='p_in')
 
-    In_exc3=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs3(t)*tstep', dt=record_dt)    #dt ? record_dt ?
+    In_exc3=NeuronGroup(10000, 'rates : Hz', threshold='rand()<inputs3(t)*tstep', dt=tstep)    #dt ? record_dt ?
     S31 = Synapses(In_exc3, EC_py_CAN, on_pre='he_post+=g_max_e')
     S31.connect(p='p_in')
     S33 = Synapses(In_exc3, EC_inh, on_pre='he_post+=g_max_e')
@@ -680,7 +679,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
         ###Calcul du LFP
         print('Calcul du LFP')  
         start_plot_time=500*msecond
-        start_ind=int(start_plot_time/record_dt)      
+        start_ind=int(start_plot_time/tstep)
         
 
         all_isyn=zeros((len(elec_pos),int(single_runtime/tstep)))
@@ -901,7 +900,7 @@ if __name__ == '__main__':
     # Extracting and validating input
     type_idxs = resolve_type_index(sys.argv[1])
     input_time = int(sys.argv[2]) * second
-    research_parameter = int(sys.argv[3])
+    research_parameter = float(sys.argv[3])
 
     print("Running main_process with:")
     print("Research Parameter: " + str(research_parameter))
