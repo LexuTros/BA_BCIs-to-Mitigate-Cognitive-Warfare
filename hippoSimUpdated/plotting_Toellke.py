@@ -111,14 +111,14 @@ def plot_line_diagram(label_value_list, x_label, y_label, title="", comp_values=
     fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
 
     # Plotting the line diagram
-    ax.plot(categories, values, marker='o', linestyle='-')  # Line with markers
-    ax.plot(categories, comp_mean_values, marker='o', linestyle='-', color="green")  # comp values
+    ax.plot(categories, values, marker='o', linestyle='-', color="green")  # Line with markers
+    ax.plot(categories, comp_mean_values, marker='o', linestyle='-')  # comp values
     # ax.errorbar(categories, values, yerr=standard_deviations, fmt='o', capsize=7)
 
 
     # Setting labels and title
     if title != "":
-        ax.set_title(f'Event Peak Frequencies')
+        ax.set_title(f'{title}', fontsize=28)
     ax.set_ylabel(f"{y_label}")
     ax.set_xlabel(f"{x_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
@@ -156,7 +156,7 @@ def plot_occurrence_frequencies(occurrence_frequencies, parameter_label, title="
 
     # Setting labels and title
     if title != "":
-        ax.set_title(f'{title}')
+        ax.set_title(f'{title}', fontsize=28)
     ax.set_ylabel('Frequency of Occurrence (Hz)')
     ax.set_xlabel(f"{parameter_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
@@ -225,7 +225,7 @@ def plot_peak_frequencies(peak_frequencies, parameter_label, title="", comp_freq
 
     # Setting labels and title
     if title != "":
-        ax.set_title(f'{title}')
+        ax.set_title(f'{title}', fontsize=28)
     ax.set_ylabel('Peak Frequency (Hz)')
     ax.set_xlabel(f"{parameter_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
@@ -278,7 +278,7 @@ def plot_power_spectral_density_bands(psd_bands, label, title=""):
     ax.set_ylabel('Power ($V^2$)')
 
     if title != "":
-        ax.set_title(f'{title}')
+        ax.set_title(f'{title}', fontsize=28)
     ax.set_xlabel(f"{label}")
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
@@ -302,6 +302,23 @@ def plot_power_spectral_density(frequencies, power_densities):
     plt.title('Power Spectral Density')
     plt.xlabel('Frequency [Hz]')
     plt.ylabel('PSD [V/Hz]')
+    plt.show()
+
+
+def combine_plots(peak_input, occurrence_input, duration_input, power_input, parameter_label):
+    # Create a figure with subplots (1 row and 4 columns)
+    fig, axs = plt.subplots(1, 4, figsize=(20, 5))  # Adjust figsize as needed
+
+    # Call each plotting function with the corresponding axis
+    plot_peak_frequencies(axs[0])
+    plot_occurrence_frequencies(axs[1])
+    plot_line_diagram(axs[2])
+    plot_power_spectral_density_bands(axs[3])
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Show the combined plot
     plt.show()
 
 
@@ -405,7 +422,11 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
 
 
 def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
-    parameter_label = main_folder_path.split("/")[-1]
+    parameter_label = main_folder_path.split("/")[-1].split("(")[0]
+
+    parm_units = {"gCAN": "($µS/cm^2$)", "G_ACh": "(factor)", "maxN": "(count)", "g_max_e": "($pS$)", "gCAN-G_ACh": "($µS/cm^2$ - factor)",
+                  "maxN-g_max_e": "(count - $pS$)", "Full Attack": "(intensity)"}
+    parameter_with_unit = f"{parameter_label} {parm_units[parameter_label]}"
 
     all_peak_lists = []
     all_occ_freq_lists = []
@@ -428,7 +449,7 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
     for parameter in parameter_values:
         parameter_folder_path = f"{main_folder_path}/{parameter}"
-        clean_param_string = parameter.lstrip("0")
+        clean_param_string = parameter.lstrip("0").split("(")[0]
 
         [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur], band_powers = sim_collection_analysis(parameter_folder_path, do_chat, do_plots)
         all_peak_lists.append((clean_param_string, all_peaks))
@@ -440,19 +461,19 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
 
     # Peak Frequencies
-    plot_peak_frequencies(all_peak_lists, parameter_label, title="Comparison", comp_frequencies=swr_peak_lists)
+    plot_peak_frequencies(all_peak_lists, parameter_with_unit, title="A", comp_frequencies=swr_peak_lists)
     # plot_peak_frequencies(all_peak_lists, parameter_label, title="All Events")
     # plot_peak_frequencies(swr_peak_lists, parameter_label, title="Sharp Wave Ripples")
 
     # Event Occurrence
-    plot_occurrence_frequencies(all_occ_freq_lists, parameter_label, title="Comparison", comp_frequencies=swr_occ_freq_lists)
+    plot_occurrence_frequencies(all_occ_freq_lists, parameter_with_unit, title="B", comp_frequencies=swr_occ_freq_lists)
     # plot_occurrence_frequencies(swr_occ_freq_lists, parameter_label, title="Sharp Wave Ripples")
 
     # Durations
-    plot_line_diagram(swr_dur_lists, parameter_label, "Mean SWR Duration (ms)")
+    plot_line_diagram(swr_dur_lists, parameter_with_unit, "Mean SWR Duration (ms)", title="C")
 
     # Power in Oscillation bands
-    plot_power_spectral_density_bands(band_power_lists, parameter_label)
+    plot_power_spectral_density_bands(band_power_lists, parameter_with_unit, title="D")
 
     # More
     # plot_line_diagram(swr_occ_freq_lists, parameter_label, "Occurrence Frequency (Hz)", 1, [mean(x[1]) for x in all_occ_freq_lists])
@@ -460,8 +481,8 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
 if __name__ == '__main__':
 
-    doChat = 1
-    doPlots = 1
+    doChat = 0
+    doPlots = 0
     reversed_analysis = 0
 
     parameter_comparison("sorted_results/sleep/gCAN", reversed_analysis, doChat, doPlots)
