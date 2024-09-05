@@ -278,7 +278,7 @@ def plot_power_spectral_density_bands(psd_bands, label="", title="", axis=0):
 
     # Set position of bar on X axis
     index = np.arange(n_groups)
-    bar_width = 0.14 # for 1: 0.075
+    bar_width = 0.16 # for 1: 0.075
     cap_size = 3
 
     rects1 = ax.bar(index - bar_width, ripple_means, bar_width, yerr=ripple_stds,
@@ -302,7 +302,7 @@ def plot_power_spectral_density_bands(psd_bands, label="", title="", axis=0):
         ax.set_xlabel(f"{label}")
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
-    ax.legend()
+    ax.legend(loc='upper right', fontsize=9, labelspacing=0.15)
 
     # Set Y-axis to log scale to match the original plot scale
     ax.set_yscale('log')
@@ -327,15 +327,22 @@ def plot_power_spectral_density(frequencies, power_densities):
 
 def combine_plots(peak_input, occurrence_input, duration_input, power_input, parameter_label):
     # Create a figure with subplots (1 row and 4 columns)
-    fig, axs = plt.subplots(1, 4, figsize=(13, 5))  # Adjust figsize as needed
+    fig = plt.figure(figsize=(15, 5))  # Adjust figsize as needed
+    gs = GridSpec(1, 13)  # Total of width units (3+3+3+4=13)
+
+    # Define widths based on the ratio
+    ax1 = fig.add_subplot(gs[0:1, :3])  # Plot 1 takes up the first three units
+    ax2 = fig.add_subplot(gs[0:1, 3:6])  # Plot 2 takes up the next three units
+    ax3 = fig.add_subplot(gs[0:1, 6:9])  # Plot 3 takes up the next three units
+    ax4 = fig.add_subplot(gs[0:1, 9:13])  # Plot 4 takes up the last four units
 
     # Call each plotting function with the corresponding axis
-    plot_peak_frequencies(peak_input[0], comp_frequencies=peak_input[1], title="A", axis=axs[0])
-    plot_occurrence_frequencies(occurrence_input[0], comp_frequencies=occurrence_input[1], title="B", axis=axs[1])
-    plot_line_diagram(duration_input, "Mean SWR Duration (ms)", title="C", axis=axs[2])
-    plot_power_spectral_density_bands(power_input, title="D", axis=axs[3])
+    plot_peak_frequencies(peak_input[0], comp_frequencies=peak_input[1], title="A", axis=ax1)
+    plot_occurrence_frequencies(occurrence_input[0], comp_frequencies=occurrence_input[1], title="B", axis=ax2)
+    plot_line_diagram(duration_input, "Mean SWR Duration (ms)", title="C", axis=ax3)
+    plot_power_spectral_density_bands(power_input, title="D", axis=ax4)
 
-    fig.text(0.5, 0.05, parameter_label, ha='center', va='center', fontsize=14)
+    fig.text(0.5, 0.05, parameter_label, ha='center', va='center', fontsize=16)
     # Adjust layout
     plt.tight_layout(rect=[0.0, 0.075, 1.0, 1.0])
 
@@ -457,7 +464,8 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
     band_power_lists = []
 
 
-    [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur], band_powers = sim_collection_analysis("sorted_results/sleep/healthy", do_chat, do_plots)
+    [all_num, all_occ_freq, all_peaks, all_dur], [swr_num, swr_occ_freq, swr_peaks, swr_dur], band_powers = sim_collection_analysis(
+        "sorted_output/sleep/healthy", do_chat, do_plots)
     all_peak_lists.append(("healthy", all_peaks))
     all_occ_freq_lists.append(("healthy", all_occ_freq))
     swr_peak_lists.append(("healthy", swr_peaks))
@@ -481,6 +489,9 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
         band_power_lists.append((clean_param_string, band_powers))
 
 
+    # Plot All
+    combine_plots((all_peak_lists, swr_peak_lists),(all_occ_freq_lists, swr_occ_freq_lists), swr_dur_lists, band_power_lists, parameter_with_unit)
+
     # Peak Frequencies
     # plot_peak_frequencies(all_peak_lists, parameter_with_unit, title="A", comp_frequencies=swr_peak_lists)
     # plot_peak_frequencies(all_peak_lists, parameter_label, title="All Events")
@@ -499,8 +510,6 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
     # More
     # plot_line_diagram(swr_occ_freq_lists, parameter_label, "Occurrence Frequency (Hz)", 1, [mean(x[1]) for x in all_occ_freq_lists])
 
-    # All together
-    combine_plots((all_peak_lists, swr_peak_lists),(all_occ_freq_lists, swr_occ_freq_lists), swr_dur_lists, band_power_lists, parameter_with_unit)
 
 
 if __name__ == '__main__':
@@ -509,6 +518,12 @@ if __name__ == '__main__':
     doPlots = 0
     reversed_analysis = 0
 
-    parameter_comparison("sorted_results/sleep/gCAN", reversed_analysis, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/gCAN", 0, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/G_ACh", 0, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/gCAN-G_ACh", 0, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/g_max_e", 1, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/maxN", 1, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/maxN-g_max_e", 1, doChat, doPlots)
+    parameter_comparison("sorted_output/sleep/Full Attack(maxN-g_max_e-gCAN-G_ACh)", 0, doChat, doPlots)
 
     # single_sim_analysis("sorted_results/sleep/healthy/LFP_08-11_[0].txt", 1, 0)
