@@ -93,7 +93,7 @@ def plot_full_length_lfp(file_path):
         plot_lfp(lfp_frame, f"Frame nr. {i + 1}")
 
 
-def plot_line_diagram(label_value_list, x_label, y_label, title="", comp_values=[]):
+def plot_line_diagram(label_value_list, y_label, x_label="", title="", comp_values=[], axis=0):
     # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
 
     if len(comp_values) == 0:
@@ -108,7 +108,10 @@ def plot_line_diagram(label_value_list, x_label, y_label, title="", comp_values=
     comp_std_values = [np.std(x[1]) for x in comp_values]
 
     # Create figure and axis
-    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+    if axis == 0:
+        fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+    else:
+        ax = axis
 
     # Plotting the line diagram
     ax.plot(categories, values, marker='o', linestyle='-', color="green")  # Line with markers
@@ -120,18 +123,20 @@ def plot_line_diagram(label_value_list, x_label, y_label, title="", comp_values=
     if title != "":
         ax.set_title(f'{title}', fontsize=28)
     ax.set_ylabel(f"{y_label}")
-    ax.set_xlabel(f"{x_label}")
+    if axis == 0:
+        ax.set_xlabel(f"{x_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
 
     ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
 
     # Adjust layout to make sure nothing gets cut off
-    plt.tight_layout()
-    plt.show()
+    if axis == 0:
+        plt.tight_layout()
+        plt.show()
 
 
-def plot_occurrence_frequencies(occurrence_frequencies, parameter_label, title="", comp_frequencies=[]):
+def plot_occurrence_frequencies(occurrence_frequencies, parameter_label="", title="", comp_frequencies=[], axis=0):
     # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
 
     if len(comp_frequencies) == 0:
@@ -147,7 +152,10 @@ def plot_occurrence_frequencies(occurrence_frequencies, parameter_label, title="
     comp_std_devs = [np.std(x[1]) for x in comp_frequencies]
 
     # Create figure and axis
-    fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+    if axis == 0:
+        fig, ax = plt.subplots(figsize=(3, 4))  # Adjust figure size to ensure everything fits well
+    else:
+        ax = axis
 
     # Plotting the error bars
     ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=7)
@@ -158,15 +166,17 @@ def plot_occurrence_frequencies(occurrence_frequencies, parameter_label, title="
     if title != "":
         ax.set_title(f'{title}', fontsize=28)
     ax.set_ylabel('Frequency of Occurrence (Hz)')
-    ax.set_xlabel(f"{parameter_label}")
+    if axis == 0:
+        ax.set_xlabel(f"{parameter_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
 
     ax.set_xlim(-0.5, len(categories)-0.5)  # Modify these values to compress or expand the x-axis
 
     # Adjust layout to make sure nothing gets cut off
-    plt.tight_layout()
-    plt.show()
+    if axis == 0:
+        plt.tight_layout()
+        plt.show()
 
 
 def plot_frequency_distribution(frequencies, label):
@@ -200,7 +210,7 @@ def plot_frequency_distribution(frequencies, label):
     plt.show()
 
 
-def plot_peak_frequencies(peak_frequencies, parameter_label, title="", comp_frequencies=[]):
+def plot_peak_frequencies(peak_frequencies, parameter_label="", title="", comp_frequencies=[], axis=0):
     # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
 
     if len(comp_frequencies) == 0:
@@ -215,7 +225,10 @@ def plot_peak_frequencies(peak_frequencies, parameter_label, title="", comp_freq
     comp_std_devs = [np.std(x[1]) for x in comp_frequencies]
 
     # Create figure and axis
-    fig, ax = plt.subplots(figsize=(3, 4))  # or (4, 4) Adjust figure size to ensure everything fits well
+    if axis == 0:
+        fig, ax = plt.subplots(figsize=(3, 4))  # or (4, 4) Adjust figure size to ensure everything fits well
+    else:
+        ax = axis
 
     # Plotting the error bars
     ax.errorbar(categories, means, yerr=std_devs, fmt='o', capsize=7)
@@ -227,19 +240,22 @@ def plot_peak_frequencies(peak_frequencies, parameter_label, title="", comp_freq
     if title != "":
         ax.set_title(f'{title}', fontsize=28)
     ax.set_ylabel('Peak Frequency (Hz)')
-    ax.set_xlabel(f"{parameter_label}")
+    if axis == 0:
+        ax.set_xlabel(f"{parameter_label}")
     ax.set_xticks(range(len(categories)))  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
 
     ax.set_xlim(-0.5, len(categories) - 0.5)  # Modify these values to compress or expand the x-axis
     ax.set_ylim(0, 200)
     ax.set_yticks(np.arange(0, 176, 25))
+
     # Adjust layout to make sure nothing gets cut off
-    plt.tight_layout()
-    plt.show()
+    if axis == 0:
+        plt.tight_layout()
+        plt.show()
 
 
-def plot_power_spectral_density_bands(psd_bands, label, title=""):
+def plot_power_spectral_density_bands(psd_bands, label="", title="", axis=0):
     #psd_bands of from: [(parameter_value, [[theta_band], [gamma_band], [ripple_band]]), ...]
 
     categories = [x[0] for x in psd_bands]
@@ -255,7 +271,10 @@ def plot_power_spectral_density_bands(psd_bands, label, title=""):
 
     # Number of groups
     n_groups = len(categories)
-    fig, ax = plt.subplots(figsize=(4, 4)) # for 1: (3, 4)
+    if axis == 0:
+        fig, ax = plt.subplots(figsize=(4, 4)) # for 1: (3, 4)
+    else:
+        ax = axis
 
     # Set position of bar on X axis
     index = np.arange(n_groups)
@@ -279,7 +298,8 @@ def plot_power_spectral_density_bands(psd_bands, label, title=""):
 
     if title != "":
         ax.set_title(f'{title}', fontsize=28)
-    ax.set_xlabel(f"{label}")
+    if axis == 0:
+        ax.set_xlabel(f"{label}")
     ax.set_xticks(index)  # Ensure ticks are set correctly before setting labels
     ax.set_xticklabels(categories)  # Rotate labels to prevent overlap
     ax.legend()
@@ -291,9 +311,9 @@ def plot_power_spectral_density_bands(psd_bands, label, title=""):
     ax.set_xlim(-0.5, len(categories) - 0.5)
     ax.set_ylim(1e-18, 1e-8)  # Adjust as necessary based on your data range
     ax.yaxis.set_tick_params(which='both', labelleft=True)
-
-    fig.tight_layout()
-    plt.show()
+    if axis == 0:
+        fig.tight_layout()
+        plt.show()
 
 
 def plot_power_spectral_density(frequencies, power_densities):
@@ -307,16 +327,17 @@ def plot_power_spectral_density(frequencies, power_densities):
 
 def combine_plots(peak_input, occurrence_input, duration_input, power_input, parameter_label):
     # Create a figure with subplots (1 row and 4 columns)
-    fig, axs = plt.subplots(1, 4, figsize=(20, 5))  # Adjust figsize as needed
+    fig, axs = plt.subplots(1, 4, figsize=(13, 5))  # Adjust figsize as needed
 
     # Call each plotting function with the corresponding axis
-    plot_peak_frequencies(axs[0])
-    plot_occurrence_frequencies(axs[1])
-    plot_line_diagram(axs[2])
-    plot_power_spectral_density_bands(axs[3])
+    plot_peak_frequencies(peak_input[0], comp_frequencies=peak_input[1], title="A", axis=axs[0])
+    plot_occurrence_frequencies(occurrence_input[0], comp_frequencies=occurrence_input[1], title="B", axis=axs[1])
+    plot_line_diagram(duration_input, "Mean SWR Duration (ms)", title="C", axis=axs[2])
+    plot_power_spectral_density_bands(power_input, title="D", axis=axs[3])
 
+    fig.text(0.5, 0.05, parameter_label, ha='center', va='center', fontsize=14)
     # Adjust layout
-    plt.tight_layout()
+    plt.tight_layout(rect=[0.0, 0.075, 1.0, 1.0])
 
     # Show the combined plot
     plt.show()
@@ -461,22 +482,25 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
 
     # Peak Frequencies
-    plot_peak_frequencies(all_peak_lists, parameter_with_unit, title="A", comp_frequencies=swr_peak_lists)
+    # plot_peak_frequencies(all_peak_lists, parameter_with_unit, title="A", comp_frequencies=swr_peak_lists)
     # plot_peak_frequencies(all_peak_lists, parameter_label, title="All Events")
     # plot_peak_frequencies(swr_peak_lists, parameter_label, title="Sharp Wave Ripples")
 
     # Event Occurrence
-    plot_occurrence_frequencies(all_occ_freq_lists, parameter_with_unit, title="B", comp_frequencies=swr_occ_freq_lists)
+    # plot_occurrence_frequencies(all_occ_freq_lists, parameter_with_unit, title="B", comp_frequencies=swr_occ_freq_lists)
     # plot_occurrence_frequencies(swr_occ_freq_lists, parameter_label, title="Sharp Wave Ripples")
 
     # Durations
-    plot_line_diagram(swr_dur_lists, parameter_with_unit, "Mean SWR Duration (ms)", title="C")
+    # plot_line_diagram(swr_dur_lists, "Mean SWR Duration (ms)", x_label=parameter_with_unit, title="C")
 
     # Power in Oscillation bands
-    plot_power_spectral_density_bands(band_power_lists, parameter_with_unit, title="D")
+    # plot_power_spectral_density_bands(band_power_lists, parameter_with_unit, title="D")
 
     # More
     # plot_line_diagram(swr_occ_freq_lists, parameter_label, "Occurrence Frequency (Hz)", 1, [mean(x[1]) for x in all_occ_freq_lists])
+
+    # All together
+    combine_plots((all_peak_lists, swr_peak_lists),(all_occ_freq_lists, swr_occ_freq_lists), swr_dur_lists, band_power_lists, parameter_with_unit)
 
 
 if __name__ == '__main__':
