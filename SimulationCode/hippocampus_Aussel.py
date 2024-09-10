@@ -607,12 +607,12 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     else:
         # Synthetic inputs
         if stim == 'sleep':
-            synthetic_sleep = generate_input(1, research_parameter, 1, 1, sim_time)
+            synthetic_sleep = generate_input(1, research_parameter, 3,  sim_time)
             inputs1 = synthetic_sleep
             inputs2 = synthetic_sleep
             inputs3 = synthetic_sleep
         else:
-            synthetic_wake = generate_input(1, 2, 1, 3, sim_time)
+            synthetic_wake = generate_input(1, 2, 1, sim_time)
             inputs1 = synthetic_wake
             inputs2 = synthetic_wake
             inputs3 = synthetic_wake

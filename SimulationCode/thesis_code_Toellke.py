@@ -6,7 +6,7 @@ import time
 import numpy as np
 
 
-def generate_input(A1, f1, wave_realization_interval, noise_scaling_factor, sim_time):
+def generate_input(A1, f1, wave_realization_interval, sim_time):
     """
     Generates a synthetic square wave input signal for simulations based on specific parameters, including frequency modulation and noise addition.
 
@@ -14,7 +14,6 @@ def generate_input(A1, f1, wave_realization_interval, noise_scaling_factor, sim_
         A1 (float): Amplitude of the input signal.
         f1 (float): Base frequency of the input signal in Hz.
         wave_realization_interval (int): Controls the frequency of wave realization by specifying how often (in terms of number of cycles) the wave amplitude is set to A1.
-        noise_scaling_factor (float): Factor that determines the level of random noise added to the signal. It scales the noise to a fraction of the maximum amplitude.
         sim_time (int * second): Total duration for which the input signal is generated, specified as an integer multiplied by the 'second' unit from the brian2 library.
 
     Returns:
@@ -44,8 +43,7 @@ def generate_input(A1, f1, wave_realization_interval, noise_scaling_factor, sim_
     input_normalized = (input_values - min(input_values)) / (max(input_values) - min(input_values))
 
     # Add variability: scale down by 5/6 and add random noise up to 1/6 of max value
-    input_noisy = (6 - noise_scaling_factor) / 6 * input_normalized + (
-                noise_scaling_factor / 6) * np.random.rand(len(input_normalized))
+    input_noisy = (5 / 6) * input_normalized + (1 / 6) * np.random.rand(len(input_normalized))
 
     # Scale to a maximum of 200 Hz (based on previous scaling)
     max_rate = 200 * Hz
