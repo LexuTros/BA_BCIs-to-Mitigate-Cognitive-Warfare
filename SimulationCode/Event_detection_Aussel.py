@@ -9,13 +9,38 @@ import plotting_Toellke
 
 
 def window_rms(a, window_size):
+    """
+        Computes the root mean square (RMS) of an input array over a specified window size.
+
+        Parameters:
+            a (array): The input array of floats for which the RMS is to be calculated.
+            window_size (int): The size of the moving window used to compute the RMS.
+
+        Returns:
+            array: An array of floats representing the RMS values computed over the specified window.
+    """
     a2 = numpy.power(a, 2)
     window = ones(window_size) / float(window_size)
     return sqrt(convolve(a2, window, 'valid'))
 
 
 def frequency_band_analysis(N, low, high, event, fs):
+    """
+        Analyzes the frequency band of an event signal by applying a bandpass filter and computing its power spectrum.
 
+        Parameters:
+            N (int): The order of the Butterworth filter.
+            low (float): The lower cutoff frequency of the bandpass filter.
+            high (float): The upper cutoff frequency of the bandpass filter.
+            event (array-like): The input signal or event data to analyze.
+            fs (float): The sampling frequency of the input signal.
+
+        Returns:
+            tuple: A tuple containing:
+                - array: The frequencies corresponding to the power spectrum.
+                - array: The power spectrum of the filtered signal.
+                - array: The filtered signal after applying the bandpass filter, or empty lists if analysis fails.
+    """
     b, a = scipy.signal.butter(N, [low, high], btype='band')
     try:
         y = scipy.signal.filtfilt(b, a, event)
@@ -27,6 +52,24 @@ def frequency_band_analysis(N, low, high, event, fs):
 
 
 def event_detection_and_analysis(sig, sigstr, fs):
+    """
+        Detects and analyzes events in a signal, calculating various metrics including frequency spectra and event durations.
+
+        Parameters:
+            sig (array-like): The input signal to analyze.
+            sigstr (str): A string representing the label or description of the signal for output purposes.
+            fs (float): The sampling frequency of the input signal.
+
+        Returns:
+            tuple: A tuple containing:
+                - list: Peak frequencies of detected events.
+                - list: Band spectra for theta, gamma, and ripple bands.
+                - list: A list containing the original and filtered events.
+
+        Prints:
+            Summary statistics about the detected events, including mean, standard deviation, minimum, and maximum peak frequencies
+            and event durations.
+    """
     record_dt = 1 / fs
     start_plot_time = 50 * msecond
     start_ind = int(start_plot_time / record_dt)
