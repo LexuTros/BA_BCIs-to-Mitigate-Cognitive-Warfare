@@ -8,7 +8,7 @@ from brian2 import *
 from topology_Aussel import topology
 from Event_detection_Aussel import event_detection_and_analysis
 from plotting_Toellke import *
-from thesis_code_Toellke import *
+from synthetic_input_Toellke import *
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib.pyplot import *
