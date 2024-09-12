@@ -24,6 +24,7 @@ To run a single simulation, you can execute either `user_interface_simple.py` or
 
 In order to run multiple simulations in parallel, configure and execute the `parallel_processing.py` (details regarding this can be found in my thesis - Chapter 5.3).
 
+Simulations produce a result folder in the root directory of the model code, containing many LFP files and more. Usually the standard `LFP.txt` file was extracted from these results and sorted for analysis.
 
 ## Performing The Output Analysis
 To analyse the simulation output, employ the `plotting_Toellke.py` file. It contains many functions to read and analyse LFP.txt files.
