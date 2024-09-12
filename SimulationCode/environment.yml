@@ -1,9 +1,0 @@
-name: brian2
-channels:
-  - defaults
-dependencies:
-  - python
-  - brian2
-  - matplotlib
-  - joblib
-  - scipy
