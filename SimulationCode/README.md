@@ -1,7 +1,7 @@
-# Simulation Model v2
+# Simulation Model v1
 ## Getting Started
 
-#### First, install all the packages. 
+#### First, install all the packages (both models can be executed with the same environment)
 The recommended way would be to create a conda environment, from the `env_hipp.yaml` file. This requires to have conda installed as prerequisite. For more details visit the [Conda Documentation](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
 
 With conda installed, you can run:
@@ -18,13 +18,32 @@ conda hipp_sim activate
 to activate the created environment.
 (alternatively the libraries from the file can be installed manually)
 
+## Configuring the Model
+Since this model code is not that well-structured, certain configurations still need to be performed inside the main file `hippocampus_Aussel.py`. The most important adjustments are followingly pointed out with their according line number in the file:
+
+`Select EEG or Synthetic input:` line 510 - by adjusting the "use_eeg_files" boolean
+
+`Adjust Parameters of Synthetic input:` line 584 - by adjusting parameters of the "generate_input" function
+
 
 ## Running Simulations
-To run a single simulation, you can execute either `user_interface_simple.py` or `user_interface_extended.py` to configure the simulation parameters with a graphical user interface.
+In order to run a simulation, the `hippocampus_Aussel.py` file needs to be executed.
 
-In order to run multiple simulations in parallel, configure and execute the `parallel_processing.py` (details regarding this can be found in my thesis - Chapter 5.3).
+This requires however to pass 3 arguments to it, which was configured this way to allow its parameterization from a terminal. These parameters are `simulation type`, `simulation time`, `research parameter`.
 
-Simulations produce a result folder in the root directory of the model code, containing many LFP files and more. Usually the standard `LFP.txt` file was extracted from these results and sorted for analysis.
+`simulation type` refers to the combination of input and connectivity type. Possible options are: {'S_S', 'S_W', 'W_S', 'W_W', 'S_S_CAN', 'S_W_noCAN', 'W_S_CAN', 'W_W_noCAN'}. For this model however, mostly the "S_S" option (standing for sleep input and connectivity) was used and of relevance.
+
+`simulation time` defines the length of the simulation in seconds and has to be supplied as integer.
+
+`research parameter` is a float value that defines the input frequency, but could also be placed somewhere else in the `hippocampus_Aussel.py` to explore multiple simulation configurations with the same code.
+
+To run the simulation it is recommended to execute a statement of the following form in a terminal:
+
+#### python hippocampus_Aussel.py "simulation type" "simulation time" "research parameter"
+To simulate for example the healthy brain with the best identified parameter combination, for 15s, execute the following:
+```bash
+python hippocampus_Aussel.py S_S 15 1.5
+```
 
 ## Performing The Output Analysis
 To analyse the simulation output, employ the `plotting_Toellke.py` file. It contains many functions to read and analyse LFP.txt files.
