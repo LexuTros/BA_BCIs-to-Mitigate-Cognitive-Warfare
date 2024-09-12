@@ -1,22 +1,8 @@
 # Simulation Model v1
-## Getting Started
-
-#### First, install all the packages (both models can be executed with the same environment)
-The recommended way would be to create a conda environment, from the `env_hipp.yaml` file. This requires to have conda installed as prerequisite. For more details visit the [Conda Documentation](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
-
-With conda installed, you can run:
-
-```bash
-conda env create -f env_hipp.yaml
-```
-
-followed by:
-
-```bash
-conda hipp_sim activate
-```
-to activate the created environment.
-(alternatively the libraries from the file can be installed manually)
+This is the initial version of the model, which contains some problematic code. 
+The parallel processing functionality, had to be deactivated in order to make it work.
+Further, the event detection function was not adjusted and the plotting functionality is compared to the second model version limited.
+It was however used for the investigation of the synthetic input.
 
 ## Configuring the Model
 Since this model code is not that well-structured, certain configurations still need to be performed inside the main file `hippocampus_Aussel.py`. The most important adjustments are followingly pointed out with their according line number in the file:
@@ -35,22 +21,22 @@ This requires however to pass 3 arguments to it, which was configured this way t
 
 `simulation time` defines the length of the simulation in seconds and has to be supplied as integer.
 
-`research parameter` is a float value that defines the input frequency, but could also be placed somewhere else in the `hippocampus_Aussel.py` to explore multiple simulation configurations with the same code.
+`research parameter` is a float value that defines the input frequency, but could also be placed somewhere else in the **hippocampus_Aussel.py** to explore multiple simulation configurations with the same code.
 
 To run the simulation it is recommended to execute a statement of the following form in a terminal:
 
 #### python hippocampus_Aussel.py "simulation type" "simulation time" "research parameter"
-To simulate for example the healthy brain with the best identified parameter combination, for 15s, execute the following:
+To simulate for example the healthy brain with the best identified parameter combination, for 60s, execute the following:
 ```bash
-python hippocampus_Aussel.py S_S 15 1.5
+python hippocampus_Aussel.py S_S 60 1.5
 ```
 
 ## Performing The Output Analysis
 To analyse the simulation output, employ the `plotting_Toellke.py` file. It contains many functions to read and analyse LFP.txt files.
 
-Some example function calls can be found at the bottom of the file. All data used for the attack analysis performed in the thesis, is sorted and stored in the `sorted_output` folder. It contains folders for every explored paramter combination, which again hold a folders with at least 8 output files, for every parameter value.
-Most powerful analysis functions were configured to work with this folder structure to extract parameters and their values.
+Some example function calls can be found at the bottom of the file. Data that was used for thesis plots is sorted and stored in the `sorted_output` folder. The rest of relevant LFP output can be found inside "Out/Timeseries/S_S".
 
-Example plots that were produce with these functions can be found in the `result_plot` folder.
+
+
 
 

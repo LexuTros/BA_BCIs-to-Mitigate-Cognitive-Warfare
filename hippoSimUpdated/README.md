@@ -1,23 +1,6 @@
 # Simulation Model v2
-## Getting Started
-
-#### First, install all the packages. 
-The recommended way would be to create a conda environment, from the `env_hipp.yaml` file. This requires to have conda installed as prerequisite. For more details visit the [Conda Documentation](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
-
-With conda installed, you can run:
-
-```bash
-conda env create -f env_hipp.yaml
-```
-
-followed by:
-
-```bash
-conda hipp_sim activate
-```
-to activate the created environment.
-(alternatively the libraries from the file can be installed manually)
-
+This is the more mature, better structured and mostly used model version. 
+It contains the adjusted event detection functionality and the whole scale of plotting functions. 
 
 ## Running Simulations
 To run a single simulation, you can execute either `user_interface_simple.py` or `user_interface_extended.py` to configure the simulation parameters with a graphical user interface.
