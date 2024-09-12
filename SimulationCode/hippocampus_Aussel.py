@@ -2,12 +2,6 @@
 # -*- coding: utf-8 -*-
 import sys
 
-#To use this code you can execute an instruction of the form :
-#main_process(range(8), 60*psiemens,600*psiemens,0.1,0.06)
-
-#Don't forget to change the paths line 500-506 to use your own input files
-#for these simulations three sets of 8-minute-long input signals were used
-
 import brian2
 from brian2 import * 
 
@@ -561,15 +555,7 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
 
             print(inputs_envelope_S_1)
 
-            # figure()
-            # plot(inputs_envelope_S_1)
-            # plot(inputs_envelope_S_2)
-            # plot(inputs_envelope_S_3)
-            #
-            # bruit=0.8*mean(array([max(inputs_envelope_S_1),max(inputs_envelope_S_2),max(inputs_envelope_S_3)]))*Hz*(rand(int(runtime/record_dt)))
-            # print(bruit)
-            # #inputs_bruit=TimedArray(max(max(input_S_1),max(input_S_2),max(input_S_3))*rand(int(runtime/record_dt)),dt=record_dt)
-            # input_bruit=TimedArray(bruit,dt=record_dt)
+
         else:
             input_W_1=read_file('input_data/input_nonepi_wake_1.txt')
             input_W_2=read_file('input_data/input_nonepi_wake_2.txt')
@@ -593,21 +579,11 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
             inputs2 = TimedArray(inputs_envelope_W_2*Hz, dt=record_dt)
             inputs3 = TimedArray(inputs_envelope_W_3*Hz, dt=record_dt)
 
-            # sum_S=inputs_envelope_S_1+inputs_envelope_S_2+inputs_envelope_S_3
-            # sum_ve=inputs_envelope_ve_1+inputs_envelope_ve_2+inputs_envelope_ve_3
-            #
-            # print('Preparation du réseau')
-            # n,i,m=0,0,0
-            # del n
-            # del i
-            # del m
-            # preparation(num_simu,g_max_e,g_max_i,p_co,p_co_CA3)
-            # print('Adding the inputs')
 
     else:
         # Synthetic inputs
         if stim == 'sleep':
-            synthetic_sleep = generate_input(1, research_parameter, 3,  sim_time)
+            synthetic_sleep = generate_input(1, 1.5, 4,  sim_time)
             inputs1 = synthetic_sleep
             inputs2 = synthetic_sleep
             inputs3 = synthetic_sleep
@@ -816,8 +792,6 @@ def process(num_simu,g_max_e,g_max_i,p_co,p_co_CA3,sim_types, sim_time, research
     simu_type = all_simu_types[type_simu] #+version
     write_file(simu_type, res_1024, 0*second, runtime, research_value)
 
-    #plot_lfp(res_1024, simu_type, 0.9765625)
-    
     event_peak_frequencies = event_detection_and_analysis(res_1024, simu_type, 1024*Hz)
     
     return res_1024, event_peak_frequencies[0]
@@ -865,22 +839,23 @@ def main_process(simu_range, g_max_e, g_max_i, p_co, p_co_CA3, sim_types, sim_ti
 
     print('All the simulations have ended')
 
-    # plot all_events
-    # s_s_off = [mean(all_events[0]), std(all_events[0])]
-    # s_s_on = [mean(all_events[4]), std(all_events[4])]
-    # w_s_off = [mean(all_events[2]), std(all_events[2])]
-    # w_s_on = [mean(all_events[6]), std(all_events[6])]
-    # s_w_off = [mean(all_events[5]), std(all_events[5])]
-    # s_w_on = [mean(all_events[1]), std(all_events[1])]
-    # w_w_off = [mean(all_events[7]), std(all_events[7])]
-    # w_w_on = [mean(all_events[3]), std(all_events[3])]
-    # plot_peak_frequencies(s_s_off, s_s_on, w_s_off, w_s_on, s_w_off, s_w_on, w_w_off, w_w_on, runtime)
-
     t2=time.time()
     print('Total simulation time = '+str(int((t2-t1)/60))+' minutes') 
 
 
 def resolve_type_index(type_name):
+    """
+        Resolves a simulation type name to its corresponding simulation index, to only execute wanted scenarios.
+
+        Parameters:
+            type_name (str): The name of the simulation type to resolve. It can be "all", "realistic", or one of the specific simulation types.
+
+        Returns:
+            list: A list of indices corresponding to the resolved simulation types.
+
+        Raises:
+            SystemExit: Exits the program if an invalid simulation type is supplied.
+    """
     all_simu_types = ['S_S', 'S_W', 'W_S', 'W_W', 'S_S_CAN', 'S_W_noCAN', 'W_S_CAN', 'W_W_noCAN']
 
     if type_name == "all":
@@ -894,8 +869,6 @@ def resolve_type_index(type_name):
 
 
 if __name__ == '__main__':
-    #print("Supplied parameters:")
-    #print(sys.argv[1:])
 
     # Extracting and validating input
     type_idxs = resolve_type_index(sys.argv[1])
