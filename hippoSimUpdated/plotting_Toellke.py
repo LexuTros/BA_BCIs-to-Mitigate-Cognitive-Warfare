@@ -28,24 +28,23 @@ def create_list_from_timeSeries(file_path):
         return data_list
 
 
-def extract_sim_parameters(folder_path):
-    file_path = f'{folder_path}/parameters.txt'
+def plot_power_spectral_density(frequencies, power_densities):
+    """
+        Plots the power spectral density (PSD) against frequency.
 
-    with open(file_path, 'r') as file:
-        file_lines = file.readlines()
+        Parameters:
+            frequencies (array-like): A list or array of frequency values (in Hz).
+            power_densities (array-like): A list or array of power spectral density values corresponding to the frequencies.
 
-        parameters = {}
-
-        for line in file_lines:
-            stripped_line = line.strip()
-            param_name, value = stripped_line.split(": ")
-
-            parameters[param_name] = value
-
-    # Format parameters
-    parameters["runtime"] = parameters["runtime"].replace(". ", "")
-
-    return parameters
+        Returns:
+            None: This function does not return a value; it directly creates and displays a line plot of the PSD.
+    """
+    plt.figure(figsize=(10, 5))
+    plt.plot(frequencies, power_densities)  # Log scale for better visibility of peaks
+    plt.title('Power Spectral Density')
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('PSD [V/Hz]')
+    plt.show()
 
 
 def plot_lfp(recordings, sim_label):
@@ -80,8 +79,16 @@ def plot_lfp(recordings, sim_label):
     plt.show()
 
 
-
 def plot_full_length_lfp(file_path):
+    """
+        Plots the full-length local field potential (LFP) data from a specified file in frames.
+
+        Parameters:
+            file_path (str): The path to the file containing the LFP time series data.
+
+        Returns:
+            None: This function does not return a value; it directly plots the LFP frames.
+    """
     recordings = create_list_from_timeSeries(file_path)
 
     recordings_per_second = 1024
@@ -94,7 +101,22 @@ def plot_full_length_lfp(file_path):
 
 
 def plot_line_diagram(label_value_list, y_label, x_label="", title="", comp_values=[], axis=0):
-    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+    """
+        Plots a line diagram with optional comparison values, displaying mean values and standard deviations.
+
+        Parameters:
+            label_value_list (list of tuples): A list where each tuple contains a label and a list of values
+                                                (e.g., [("label1", [value1, value2, ...]), ...]).
+            y_label (str): The label for the y-axis.
+            x_label (str, optional): The label for the x-axis. Defaults to an empty string.
+            title (str, optional): The title of the plot. Defaults to an empty string.
+            comp_values (list of tuples, optional): A list of comparison values in the same format as label_value_list.
+                                                     Defaults to an empty list.
+            axis (matplotlib.axes.Axes, optional): The axis to plot on. If 0, a new figure is created. Defaults to 0.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays a plot.
+    """
 
     if len(comp_values) == 0:
         for x in label_value_list:
@@ -137,7 +159,21 @@ def plot_line_diagram(label_value_list, y_label, x_label="", title="", comp_valu
 
 
 def plot_occurrence_frequencies(occurrence_frequencies, parameter_label="", title="", comp_frequencies=[], axis=0):
-    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+    """
+        Plots occurrence frequencies with error bars representing standard deviations, including optional comparison frequencies.
+
+        Parameters:
+            occurrence_frequencies (list of tuples): A list where each tuple contains a category label and a list of frequency values
+                                                      (e.g., [("label1", [value1, value2, ...]), ...]).
+            parameter_label (str, optional): The label for the x-axis. Defaults to an empty string.
+            title (str, optional): The title of the plot. Defaults to an empty string.
+            comp_frequencies (list of tuples, optional): A list of comparison frequencies in the same format as occurrence_frequencies.
+                                                          Defaults to an empty list.
+            axis (matplotlib.axes.Axes, optional): The axis to plot on. If 0, a new figure is created. Defaults to 0.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays a plot.
+    """
 
     if len(comp_frequencies) == 0:
         for x in occurrence_frequencies:
@@ -180,6 +216,16 @@ def plot_occurrence_frequencies(occurrence_frequencies, parameter_label="", titl
 
 
 def plot_frequency_distribution(frequencies, label):
+    """
+        Plots the frequency distribution of given frequencies using a histogram with specified bins.
+
+        Parameters:
+            frequencies (array-like): A list or array of frequency values to be plotted.
+            label (str): The label for the title of the plot, indicating the context of the frequencies.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays a histogram plot.
+    """
     # Define the bins for 20 Hz intervals from 20 Hz to 300 Hz
     bins = np.arange(20, 251, 10)
 
@@ -211,7 +257,21 @@ def plot_frequency_distribution(frequencies, label):
 
 
 def plot_peak_frequencies(peak_frequencies, parameter_label="", title="", comp_frequencies=[], axis=0):
-    # peak_frequencies of form [("parameter_value, [d,a,t,a]"), ...]
+    """
+        Plots peak frequencies with error bars representing standard deviations, including optional comparison frequencies.
+
+        Parameters:
+            peak_frequencies (list of tuples): A list where each tuple contains a category label and a list of peak frequency values
+                                                (e.g., [("label1", [value1, value2, ...]), ...]).
+            parameter_label (str, optional): The label for the x-axis. Defaults to an empty string.
+            title (str, optional): The title of the plot. Defaults to an empty string.
+            comp_frequencies (list of tuples, optional): A list of comparison frequencies in the same format as peak_frequencies.
+                                                          Defaults to an empty list.
+            axis (matplotlib.axes.Axes, optional): The axis to plot on. If 0, a new figure is created. Defaults to 0.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays a plot.
+    """
 
     if len(comp_frequencies) == 0:
         for x in peak_frequencies:
@@ -256,7 +316,19 @@ def plot_peak_frequencies(peak_frequencies, parameter_label="", title="", comp_f
 
 
 def plot_power_spectral_density_bands(psd_bands, label="", title="", axis=0):
-    #psd_bands of from: [(parameter_value, [[theta_band], [gamma_band], [ripple_band]]), ...]
+    """
+        Plots the power spectral density (PSD) for different frequency bands (Theta, Gamma, Ripple) with error bars.
+
+        Parameters:
+            psd_bands (list of tuples): A list where each tuple contains a parameter label and a list of lists representing
+                                         the power values for different bands (e.g., [("label1", [[theta_band], [gamma_band], [ripple_band]]), ...]).
+            label (str, optional): The label for the x-axis. Defaults to an empty string.
+            title (str, optional): The title of the plot. Defaults to an empty string.
+            axis (matplotlib.axes.Axes, optional): The axis to plot on. If 0, a new figure is created. Defaults to 0.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays a bar plot with error bars.
+    """
 
     categories = [x[0] for x in psd_bands]
     # Extract means and standard deviations for Theta (0), Gamma (1), Ripple (2) bands
@@ -316,18 +388,22 @@ def plot_power_spectral_density_bands(psd_bands, label="", title="", axis=0):
         plt.show()
 
 
-def plot_power_spectral_density(frequencies, power_densities):
-    plt.figure(figsize=(10, 5))
-    plt.plot(frequencies, power_densities)  # Log scale for better visibility of peaks
-    plt.title('Power Spectral Density')
-    plt.xlabel('Frequency [Hz]')
-    plt.ylabel('PSD [V/Hz]')
-    plt.show()
-
-
 def combine_plots(peak_input, occurrence_input, duration_input, power_input, parameter_label):
+    """
+        Combines multiple plots into a single figure with subplots arranged in a grid layout.
+
+        Parameters:
+            peak_input (tuple): A tuple containing peak frequency data and optional comparison frequencies.
+            occurrence_input (tuple): A tuple containing occurrence frequency data and optional comparison frequencies.
+            duration_input (list): A list of mean sharp wave ripple durations to be plotted.
+            power_input (list): A list of power spectral density bands to be plotted.
+            parameter_label (str): The label to be displayed below the combined plots, indicating the parameter being analyzed.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays a combined plot with multiple subplots.
+    """
     # Create a figure with subplots (1 row and 4 columns)
-    fig = plt.figure(figsize=(15, 5))  # Adjust figsize as needed
+    fig = plt.figure(figsize=(15, 5))  # 12,4 way better readability
     gs = GridSpec(1, 13)  # Total of width units (3+3+3+4=13)
 
     # Define widths based on the ratio
@@ -351,19 +427,27 @@ def combine_plots(peak_input, occurrence_input, duration_input, power_input, par
 
 
 def single_sim_analysis(file_path, showLFP, showEventLFP):
+    """
+        Performs a single simulation analysis by extracting data from a specified file, detecting events, and generating various plots.
+
+        Parameters:
+            file_path (str): The path to the file containing the simulation data.
+            showLFP (bool): A flag indicating whether to plot the local field potential (LFP) recording.
+            showEventLFP (bool): A flag indicating whether to plot individual sharp wave ripple events and non-ripple events.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays multiple plots based on the analysis.
+    """
     sim_label, research_param = file_path.split("/")[-3:-1]
 
     # extract and analyse data
     recordings = create_list_from_timeSeries(file_path)
     [events, filtered_events, all_spectrum_peaks, all_duration], [sharp_wave_ripples, sharp_wave_ripple_peaks, sharp_wave_ripple_durations], band_spectra = event_detection(recordings)
 
-    #sharp_wave_ripples = Event_detection_Aussel.event_identification_analysis(recordings, sim_label, 1024 * Hz)
 
     # prepare plotting parameters
-    # General LFP
-
     if len(recordings) > 40960:
-        lfp_recording_sample = recordings[20480:30720]  # 10s recording, starting at 30s
+        lfp_recording_sample = recordings[20480:30720]  # 10s recording, starting at 20s
     elif len(recordings) < 6144:
         lfp_recording_sample = recordings  # if shorter than 6s, plot all
     else:
@@ -381,13 +465,26 @@ def single_sim_analysis(file_path, showLFP, showEventLFP):
             plot_lfp(x, "No SWR")
 
     plot_frequency_distribution(all_spectrum_peaks, sim_label)
-    # plot_peak_frequencies([(research_param, all_spectrum_peaks),], sim_label)
-    # plot_power_spectral_density_bands([(research_param, band_spectra),], sim_label)
+    plot_peak_frequencies([(research_param, all_spectrum_peaks),], sim_label)
+    plot_power_spectral_density_bands([(research_param, band_spectra),], sim_label)
 
 
 
 def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
-    # Facilitates analysis of a single simulation configuration
+    """
+        Facilitates the analysis of a collection of simulations with the same configurations, by aggregating data from multiple files and generating summary statistics.
+
+        Parameters:
+            collection_folder_path (str): The path to a folder containing only simulation data files of same parameter configuration.
+            chat_output (bool): A flag indicating whether to print summary statistics to the console.
+            do_plots (bool): A flag indicating whether to generate and display plots based on the aggregated data.
+
+        Returns:
+            tuple: A tuple containing:
+                - list: Aggregated data including event counts, occurrence frequencies, peak frequencies, and durations.
+                - list: Aggregated data for sharp wave ripples including counts, occurrence frequencies, peak frequencies, and durations.
+                - list: A list of band powers for theta, gamma, and ripple frequency bands.
+    """
 
     research_parameter, parameter_value = collection_folder_path.split("/")[-2:]
     parameter_value = parameter_value.lstrip("0")
@@ -450,6 +547,18 @@ def sim_collection_analysis(collection_folder_path, chat_output, do_plots):
 
 
 def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
+    """
+        Compares simulation parameters by analyzing multiple simulation configurations and generating comparative plots.
+
+        Parameters:
+            main_folder_path (str): The path to the main folder containing parameter-specific subfolders.
+            reverse_analysis (bool): A flag indicating whether to sort parameter values in reverse order.
+            do_chat (bool): A flag indicating whether to print summary statistics to the console.
+            do_plots (bool): A flag indicating whether to generate and display plots based on the analysis.
+
+        Returns:
+            None: This function does not return a value; it directly creates and displays comparative plots of simulation results.
+    """
     parameter_label = main_folder_path.split("/")[-1].split("(")[0]
 
     parm_units = {"gCAN": "($µS/cm^2$)", "G_ACh": "(factor)", "maxN": "(count)", "g_max_e": "($pS$)", "gCAN-G_ACh": "($µS/cm^2$ - factor)",
@@ -492,6 +601,7 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
     # Plot All
     combine_plots((all_peak_lists, swr_peak_lists),(all_occ_freq_lists, swr_occ_freq_lists), swr_dur_lists, band_power_lists, parameter_with_unit)
 
+    # uncomment following lines to output specific plots on their own
     # Peak Frequencies
     # plot_peak_frequencies(all_peak_lists, parameter_with_unit, title="A", comp_frequencies=swr_peak_lists)
     # plot_peak_frequencies(all_peak_lists, parameter_label, title="All Events")
@@ -514,16 +624,18 @@ def parameter_comparison(main_folder_path, reverse_analysis, do_chat, do_plots):
 
 if __name__ == '__main__':
 
-    doChat = 0
-    doPlots = 0
+    doChat = 1
+    doPlots = 1
     reversed_analysis = 0
 
-    parameter_comparison("sorted_output/sleep/gCAN", 0, doChat, doPlots)
-    parameter_comparison("sorted_output/sleep/G_ACh", 0, doChat, doPlots)
-    parameter_comparison("sorted_output/sleep/gCAN-G_ACh", 0, doChat, doPlots)
-    parameter_comparison("sorted_output/sleep/g_max_e", 1, doChat, doPlots)
-    parameter_comparison("sorted_output/sleep/maxN", 1, doChat, doPlots)
-    parameter_comparison("sorted_output/sleep/maxN-g_max_e", 1, doChat, doPlots)
-    parameter_comparison("sorted_output/sleep/Full Attack(maxN-g_max_e-gCAN-G_ACh)", 0, doChat, doPlots)
+    # Attack parameter analysis
+    # parameter_comparison("sorted_output/sleep/gCAN", 0, 0, 0)
+    # parameter_comparison("sorted_output/sleep/G_ACh", 0, 0, 0)
+    # parameter_comparison("sorted_output/sleep/gCAN-G_ACh", 0, 0, 0)
+    # parameter_comparison("sorted_output/sleep/g_max_e", 1, 0, 0)
+    # parameter_comparison("sorted_output/sleep/maxN", 1, 0, 0)
+    # parameter_comparison("sorted_output/sleep/maxN-g_max_e", 1, 0, 0)
+    # parameter_comparison("sorted_output/sleep/Full Attack(maxN-g_max_e-gCAN-G_ACh)", reversed_analysis, doChat, doPlots)
 
-    # single_sim_analysis("sorted_results/sleep/healthy/LFP_08-11_[0].txt", 1, 0)
+    single_sim_analysis("sorted_output/sleep/healthy/LFP_08-11_[0].txt", 1, 0)
+
