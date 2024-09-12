@@ -8,12 +8,34 @@ import ast
 
 
 def window_rms(a, window_size):
+    """
+        Computes the root mean square (RMS) of a signal over a specified window size.
+
+        Parameters:
+            a (array): The input array of floats for which the RMS is to be calculated.
+            window_size (int): The size of the moving window to compute the RMS.
+
+        Returns:
+            array: An array of floats representing the RMS values computed over the specified window.
+    """
     a2 = numpy.power(a, 2)
     window = ones(window_size) / float(window_size)
     return sqrt(convolve(a2, window, 'valid'))
 
 
 def band_filter(unfiltered_signal, low, high, samp_freq,):
+    """
+        Applies a bandpass filter to an unfiltered signal using a Butterworth filter.
+
+        Parameters:
+            unfiltered_signal (array-like): The input signal to be filtered.
+            low (float): The lower cutoff frequency of the bandpass filter.
+            high (float): The upper cutoff frequency of the bandpass filter.
+            samp_freq (float): The sampling frequency of the input signal.
+
+        Returns:
+            array: The filtered signal as an array of floats, or an empty list if filtering fails.
+    """
     order = 2
     nyq = 0.5 * samp_freq
     b, a = signal.butter(order, [low/nyq, high/nyq], btype='band')
@@ -26,6 +48,21 @@ def band_filter(unfiltered_signal, low, high, samp_freq,):
 
 
 def frequency_band_analysis(event, low, high, samp_freq):
+    """
+        Analyzes the frequency band of a given event by applying a bandpass filter and computing the power spectrum.
+
+        Parameters:
+            event (array-like): The input signal or event data to analyze.
+            low (float): The lower cutoff frequency of the bandpass filter.
+            high (float): The upper cutoff frequency of the bandpass filter.
+            samp_freq (float): The sampling frequency of the input signal.
+
+        Returns:
+            tuple: A tuple containing:
+                - array: The frequencies corresponding to the power spectrum.
+                - array: The power spectrum of the filtered signal.
+                - array: The filtered signal after applying the bandpass filter, or empty lists if analysis fails.
+    """
     try:
         filtered_sig = band_filter(event, low, high, samp_freq)
         frequencies, power_spectrum = signal.periodogram(filtered_sig, samp_freq / Hz, 'flattop', scaling='spectrum')
@@ -36,6 +73,18 @@ def frequency_band_analysis(event, low, high, samp_freq):
 
 
 def sharp_wave_detection(sig, boundary_condition, peak_condition, record_dt):
+    """
+        Detects sharp waves in a signal based on specified boundary and peak conditions.
+
+        Parameters:
+            sig (array-like): The input signal from which sharp waves are to be detected.
+            boundary_condition (float): The multiplier for standard deviation to define the boundary for detection.
+            peak_condition (float): The multiplier for standard deviation to define the peak condition for detection.
+            record_dt (float): The time step of the recorded signal, used for RMS calculation.
+
+        Returns:
+            list: A list of arrays, each containing the segments of the signal that correspond to detected sharp waves.
+    """
     # calculation of root-mean-square
     start_plot_time = 50 * msecond
     start_ind = int(start_plot_time / record_dt)
@@ -73,6 +122,25 @@ def sharp_wave_detection(sig, boundary_condition, peak_condition, record_dt):
 
 
 def event_detection(sig):
+    """
+        Detects events in a signal and performs frequency analysis on the detected events.
+
+        Parameters:
+            sig (array-like): The input signal from which events are to be detected.
+
+        Returns:
+            tuple: A tuple containing:
+                - list: A list of detected event signals.
+                - list: A list of filtered events.
+                - list: A list of peak frequencies corresponding to each event.
+                - list: A list of durations for each detected event.
+                - list: A list of sharp wave ripples identified in the signal.
+                - list: A list of peak frequencies of sharp wave ripples.
+                - list: A list of durations for each sharp wave ripple.
+                - list: A list of power spectra for theta band (5-10 Hz).
+                - list: A list of power spectra for gamma band (30-100 Hz).
+                - list: A list of power spectra for ripple band (100-250 Hz).
+    """
     # model specific signal properties
     sample_frequency = 1024 * Hz
     record_dt = 1 / sample_frequency
@@ -122,135 +190,109 @@ def event_detection(sig):
     return all_event_data, swr_data, band_spectra
 
 
-# print('Analysis of the simulation ' + sigstr + ' :')
-# print("Number of studied events : " + str(test_ind))
+
+# Alternative approach - less accurate:
+
+# def event_identification_analysis(sig, sigstr, fs):
+#     record_dt = 1 / fs
+#     start_plot_time = 50 * msecond
+#     start_ind = int(start_plot_time / record_dt)
 #
-# mean_peak = mean(all_spectrum_peak)
-# print('Mean peak frequency of the events = ' + str(mean_peak) + ' Hz')
-# std_peak = std(all_spectrum_peak)
-# print('Standard deviation of the peak frequency of the events = ' + str(std_peak) + ' Hz')
-# min_peak = min(all_spectrum_peak)
-# print('Minimum peak frequency of the events = ' + str(min_peak) + ' Hz')
-# max_peak = max(all_spectrum_peak)
-# print('Maximum peak frequency of the events = ' + str(max_peak) + ' Hz')
-# print(' ')
+#     N = 2
+#     nyq = 0.5 * fs
 #
-# mean_dur = mean(all_duration)
-# print('Mean duration of the events = ' + str(mean_dur * 1000) + ' ms')
-# min_dur = min(all_duration)
-# print('Minimum duration of the events = ' + str(min_dur))
-# max_dur = max(all_duration)
-# print('Maximum duration of the events = ' + str(max_dur))
-# print(' ')
+#     low_signal = band_filter(N, sig, 10/nyq, 80/nyq)
+#     mid_signal = band_filter(N, sig, 120/nyq, 200/nyq)
+#     high_signal = band_filter(N, sig, 200/nyq, 500/nyq)
 #
-# print("Sharp Wave Ripples")
-# print("Number : " + str(len(sharp_wave_ripples)))
-# print('Mean peak frequency = ' + str(mean(sharp_wave_ripple_peaks)) + ' Hz')
-# print('Mean duration = ' + str(mean(sharp_wave_ripple_durations) * 1000) + ' ms')
-# print(" ")
+#     low_sig_rms = window_rms(low_signal[start_ind:] - mean(low_signal[start_ind:]), int(10 * ms / record_dt))
+#     mid_sig_rms = window_rms(mid_signal[start_ind:] - mean(mid_signal[start_ind:]), int(10 * ms / record_dt))
+#     high_sig_rms = window_rms(high_signal[start_ind:] - mean(high_signal[start_ind:]), int(10 * ms / record_dt))
 #
-
-
-def event_identification_analysis(sig, sigstr, fs):
-    record_dt = 1 / fs
-    start_plot_time = 50 * msecond
-    start_ind = int(start_plot_time / record_dt)
-
-    N = 2
-    nyq = 0.5 * fs
-
-    low_signal = band_filter(N, sig, 10/nyq, 80/nyq)
-    mid_signal = band_filter(N, sig, 120/nyq, 200/nyq)
-    high_signal = band_filter(N, sig, 200/nyq, 500/nyq)
-
-    low_sig_rms = window_rms(low_signal[start_ind:] - mean(low_signal[start_ind:]), int(10 * ms / record_dt))
-    mid_sig_rms = window_rms(mid_signal[start_ind:] - mean(mid_signal[start_ind:]), int(10 * ms / record_dt))
-    high_sig_rms = window_rms(high_signal[start_ind:] - mean(high_signal[start_ind:]), int(10 * ms / record_dt))
-
-    low_sig_std = std(low_sig_rms)
-    mid_sig_std = std(mid_sig_rms)
-    high_sig_std = std(high_sig_rms)
-
-    #detection des events
-    all_begin = []
-    all_end = []
-    interictal_spikes = []
-    sharp_wave_ripples = []
-    fast_ripples = []
-
-    begin = 0
-    peaks = [False, False, False]
-
-    low_mean_cond = mean(low_sig_rms)
-    mid_mean_cond = mean(mid_sig_rms)
-    high_mean_cond = mean(high_sig_rms)
-
-    low_peak_cond = 4 * low_sig_std
-    mid_peak_cond = 4 * mid_sig_std
-    high_peak_cond = 4 * high_sig_std
-
-
-    for ind in range(len(low_sig_rms)):
-
-        low_rms = low_sig_rms[ind]
-        mid_rms = mid_sig_rms[ind]
-        high_rms = high_sig_rms[ind]
-
-        if low_rms > low_mean_cond or mid_rms > mid_mean_cond or high_rms > high_mean_cond:
-            if begin == 0:
-                begin = ind
-            if low_rms > low_mean_cond and low_rms > low_peak_cond and not peaks[0]:
-                peaks[0] = True
-            if mid_rms > mid_mean_cond and mid_rms > mid_peak_cond and not peaks[1]:
-                peaks[1] = True
-            if high_rms > high_mean_cond and high_rms > high_peak_cond and not peaks[2]:
-                peaks[2] = True
-
-        elif True in peaks:
-            all_begin.append(begin)
-            all_end.append(ind)
-
-            if peaks[2]:
-                fast_ripples.append((begin, ind))
-            elif peaks[1]:
-                sharp_wave_ripples.append((begin, ind))
-            else:
-                interictal_spikes.append((begin, ind))
-
-            begin = 0
-            peaks = [False, False, False]
-
-        else:
-            begin = 0
-
-
-    all_duration = []
-    for i in range(len(all_begin)):
-        # signal of event
-        event = sig[all_begin[i] + start_ind:all_end[i] + start_ind]
-        duration = len(event) * record_dt
-
-        all_duration.append(duration)
-
-    swr_signals = []
-    swr_duration = []
-    for i in range(len(sharp_wave_ripples)):
-        sharp_wave_ripple = sig[sharp_wave_ripples[i][0] + start_ind:sharp_wave_ripples[i][1] + start_ind]
-        duration = len(sharp_wave_ripple) * record_dt
-
-        swr_signals.append(sharp_wave_ripple)
-        swr_duration.append(duration)
-
-
-    print(f'Event types of {sigstr} Simulation:\n')
-
-    print(f'Number of all events: {len(all_begin)}')
-    print(f'Mean duration of events: {mean(all_duration) * 1000} ms\n')
-
-    print(f'Nuber of Sharp Wave Ripple events: {len(sharp_wave_ripples)}')
-    print(f'Mean duration Sharp Wave Ripples: {mean(swr_duration) * 1000} ms\n')
-
-    print(f'Nuber of Interictal spike events: {len(interictal_spikes)}')
-    print(f'Nuber of Fast Ripple events: {len(fast_ripples)}')
-
-    return swr_signals
+#     low_sig_std = std(low_sig_rms)
+#     mid_sig_std = std(mid_sig_rms)
+#     high_sig_std = std(high_sig_rms)
+#
+#     #detection des events
+#     all_begin = []
+#     all_end = []
+#     interictal_spikes = []
+#     sharp_wave_ripples = []
+#     fast_ripples = []
+#
+#     begin = 0
+#     peaks = [False, False, False]
+#
+#     low_mean_cond = mean(low_sig_rms)
+#     mid_mean_cond = mean(mid_sig_rms)
+#     high_mean_cond = mean(high_sig_rms)
+#
+#     low_peak_cond = 4 * low_sig_std
+#     mid_peak_cond = 4 * mid_sig_std
+#     high_peak_cond = 4 * high_sig_std
+#
+#
+#     for ind in range(len(low_sig_rms)):
+#
+#         low_rms = low_sig_rms[ind]
+#         mid_rms = mid_sig_rms[ind]
+#         high_rms = high_sig_rms[ind]
+#
+#         if low_rms > low_mean_cond or mid_rms > mid_mean_cond or high_rms > high_mean_cond:
+#             if begin == 0:
+#                 begin = ind
+#             if low_rms > low_mean_cond and low_rms > low_peak_cond and not peaks[0]:
+#                 peaks[0] = True
+#             if mid_rms > mid_mean_cond and mid_rms > mid_peak_cond and not peaks[1]:
+#                 peaks[1] = True
+#             if high_rms > high_mean_cond and high_rms > high_peak_cond and not peaks[2]:
+#                 peaks[2] = True
+#
+#         elif True in peaks:
+#             all_begin.append(begin)
+#             all_end.append(ind)
+#
+#             if peaks[2]:
+#                 fast_ripples.append((begin, ind))
+#             elif peaks[1]:
+#                 sharp_wave_ripples.append((begin, ind))
+#             else:
+#                 interictal_spikes.append((begin, ind))
+#
+#             begin = 0
+#             peaks = [False, False, False]
+#
+#         else:
+#             begin = 0
+#
+#
+#     all_duration = []
+#     for i in range(len(all_begin)):
+#         # signal of event
+#         event = sig[all_begin[i] + start_ind:all_end[i] + start_ind]
+#         duration = len(event) * record_dt
+#
+#         all_duration.append(duration)
+#
+#     swr_signals = []
+#     swr_duration = []
+#     for i in range(len(sharp_wave_ripples)):
+#         sharp_wave_ripple = sig[sharp_wave_ripples[i][0] + start_ind:sharp_wave_ripples[i][1] + start_ind]
+#         duration = len(sharp_wave_ripple) * record_dt
+#
+#         swr_signals.append(sharp_wave_ripple)
+#         swr_duration.append(duration)
+#
+#
+#     print(f'Event types of {sigstr} Simulation:\n')
+#
+#     print(f'Number of all events: {len(all_begin)}')
+#     print(f'Mean duration of events: {mean(all_duration) * 1000} ms\n')
+#
+#     print(f'Nuber of Sharp Wave Ripple events: {len(sharp_wave_ripples)}')
+#     print(f'Mean duration Sharp Wave Ripples: {mean(swr_duration) * 1000} ms\n')
+#
+#     print(f'Nuber of Interictal spike events: {len(interictal_spikes)}')
+#     print(f'Nuber of Fast Ripple events: {len(fast_ripples)}')
+#
+#     return swr_signals
