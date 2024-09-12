@@ -175,5 +175,6 @@ def event_detection_and_analysis(sig, sigstr, fs):
     print('Minimum duration of the events=' + str(min_dur))
     max_dur = max(all_duration)
     print('Maximum duration of the events=' + str(max_dur))
+    print("")
 
     return all_spectrum_peak, band_spectra, all_events
